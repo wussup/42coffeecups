@@ -7,7 +7,7 @@ public class Data {
 	private String bio;
 	private String dateOfBirth;
 	private String userId;
-
+	
 	public Data() {
 	}
 

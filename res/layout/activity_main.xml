@@ -7,11 +7,12 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity" >
-    
+
     <TabHost
         android:id="@+id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/saveChangesButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" >
 
@@ -25,7 +26,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="visible" >
-
             </TabWidget>
 
             <FrameLayout
@@ -49,14 +49,15 @@
                         android:id="@+id/bio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentRight="true"
-                        android:layout_below="@+id/listView"
+                        android:layout_below="@+id/imageView"
                         android:layout_margin="5dp"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                    <TextView
+                    <EditText
                         android:id="@+id/fullName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -64,6 +65,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_margin="5dp"
                         android:layout_toRightOf="@+id/imageView"
+                        android:inputType="textPersonName"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -94,6 +96,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
+
+                    <EditText
+                        android:id="@+id/about_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine" >
+
+                        <requestFocus />
+                    </EditText>
                 </LinearLayout>
 
                 <LinearLayout
@@ -102,19 +113,25 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
                 </LinearLayout>
-
             </FrameLayout>
-
         </LinearLayout>
-
     </TabHost>
+
+    <Button
+        android:id="@+id/saveChangesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button1"
+        android:layout_alignBottom="@+id/button1"
+        android:layout_alignRight="@+id/tabhost"
+        android:text="@string/save_changes" />
 
     <Button
         android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tabhost"
         android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/saveChangesButton"
         android:text="@string/logout_button" />
-    
+
 </RelativeLayout>

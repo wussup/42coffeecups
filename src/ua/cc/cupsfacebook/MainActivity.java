@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -93,7 +94,7 @@ public class MainActivity extends Activity {
         
         Data data = helper.findData();
         
-		((TextView)findViewById(R.id.fullName)).setText(data.getName()+" "+data.getSurname());
+		((EditText)findViewById(R.id.fullName)).setText(data.getName()+" "+data.getSurname());
 		if (data.getDateOfBirth()!=null)
 			((TextView)findViewById(R.id.dateOfBirth)).setText(data.getDateOfBirth());
 		else
@@ -167,7 +168,7 @@ public class MainActivity extends Activity {
         tabs.addTab(spec);
         spec=tabs.newTabSpec("tag2"); 
         spec.setContent(R.id.tab2); 
-        spec.setIndicator("Tab2"); 
+        spec.setIndicator("About"); 
         tabs.addTab(spec);
         spec=tabs.newTabSpec("tag3"); 
         spec.setContent(R.id.tab3); 

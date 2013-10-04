@@ -1,5 +1,7 @@
 package ua.cc.cupsfacebook.ui;
 
+import java.util.ArrayList;
+
 import ua.cc.cupsfacebook.MainActivity;
 import ua.cc.cupsfacebook.R;
 import ua.cc.cupsfacebook.database.Data;
@@ -15,6 +17,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -30,6 +33,7 @@ public class LoginActivity extends FragmentActivity  {
 
 	private Session.StatusCallback statusCallback = new SessionStatusCallback();
 	private ProgressDialog dialog;
+	private final static String TAG = "[CupsFacebook]";
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -127,7 +131,12 @@ public class LoginActivity extends FragmentActivity  {
 	private void addDataToDatabase(GraphUser user) {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
 		
-        Data data = new Data(user.getFirstName(), user.getLastName(), "Homepage: " + user.getLink(), user.getBirthday(), user.getId());
+		final ArrayList<String> list = new ArrayList<String>();
+        for (int i = 1; i <= 10; ++i) {
+          list.add("Contact"+i);
+        }
+		
+        Data data = new Data(user.getFirstName(), user.getLastName(), "Homepage: " + user.getLink(), user.getBirthday(), user.getId(), list);
         
         helper.addData(data);
 	}
@@ -189,9 +198,9 @@ public class LoginActivity extends FragmentActivity  {
 	        checkDB = SQLiteDatabase.openDatabase(MainActivity.DB_FULL_PATH, null,
 	                SQLiteDatabase.OPEN_READONLY);
 	        checkDB.close();
-	        System.out.println("Database exists");
+	        Log.i(TAG, "Database exists");
 	    } catch (SQLiteException e) {
-	    	System.out.println("Database doesn't exist yet");
+	    	Log.i(TAG, "Database doesn't exist yet");
 	    }
 	    return checkDB != null ? true : false;
 	}

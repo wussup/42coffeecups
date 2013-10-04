@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -31,6 +32,7 @@ public class MainActivity extends Activity {
 
 	public final static String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/infoDB.db";
 	private ImageView user_picture;
+	private final static String TAG = "[CupsFacebook]";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +45,6 @@ public class MainActivity extends Activity {
 			getDataFromDatabaseAndFillTextViews();
 		
 		setUpTabWidget();
-		
-		setUpListView();
 		
 		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			
@@ -69,20 +69,16 @@ public class MainActivity extends Activity {
 	        checkDB = SQLiteDatabase.openDatabase(DB_FULL_PATH, null,
 	                SQLiteDatabase.OPEN_READONLY);
 	        checkDB.close();
+	        Log.i(TAG, "Database exists");
 	    } catch (SQLiteException e) {
-	    	System.out.println("Database doesn't exist yet");
+	    	Log.i(TAG, "Database doesn't exist yet");
 	    }
-	    System.out.println("Database exists");
 	    return checkDB != null ? true : false;
 	}
 
-	private void setUpListView() {
+	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
 
-        final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 1; i <= 10; ++i) {
-          list.add("Contact"+i);
-        }
         final StableArrayAdapter adapter = new StableArrayAdapter(this,
             android.R.layout.simple_list_item_1, list);
         listview.setAdapter(adapter);
@@ -100,6 +96,8 @@ public class MainActivity extends Activity {
 			((TextView)findViewById(R.id.dateOfBirth)).setText("Inaccessible");
 		((TextView)findViewById(R.id.bio)).setText(data.getBio());
 
+		setUpListView(data.getContacts());
+		
 		new RetreiveFeedTask().execute(data.getUserId());
 		
 	}
@@ -167,7 +165,7 @@ public class MainActivity extends Activity {
         tabs.addTab(spec);
         spec=tabs.newTabSpec("tag2"); 
         spec.setContent(R.id.tab2); 
-        spec.setIndicator("Tab2"); 
+        spec.setIndicator("About"); 
         tabs.addTab(spec);
         spec=tabs.newTabSpec("tag3"); 
         spec.setContent(R.id.tab3); 

@@ -31,12 +31,12 @@
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="288dp" >
+                android:layout_height="match_parent" >
 
                 <RelativeLayout
                     android:id="@+id/tab1"
                     android:layout_width="match_parent"
-                    android:layout_height="328dp" >
+                    android:layout_height="match_parent" >
 
                     <ImageView
                         android:id="@+id/imageView"
@@ -44,18 +44,6 @@
                         android:layout_height="128dp"
                         android:layout_margin="5dp"
                         android:contentDescription="@string/hello_world" />
-
-                    <TextView
-                        android:id="@+id/bio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@+id/imageView"
-                        android:layout_margin="5dp"
-                        android:text=""
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     <EditText
                         android:id="@+id/fullName"
@@ -68,6 +56,8 @@
                         android:inputType="textPersonName"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge" />
+                        <!--  android:inputType="textPersonName" -->
+                        
 
                     <TextView
                         android:id="@+id/dateOfBirth"
@@ -83,12 +73,25 @@
                         android:id="@+id/listView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignBottom="@+id/imageView"
+                        android:layout_alignParentBottom="true"
                         android:layout_alignParentRight="true"
                         android:layout_below="@+id/dateOfBirth"
                         android:layout_margin="5dp"
                         android:layout_toRightOf="@+id/imageView" >
+
                     </ListView>
+
+                    <TextView
+                        android:id="@+id/bio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignRight="@+id/imageView"
+                        android:layout_below="@+id/imageView"
+                        android:layout_margin="5dp"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
                 </RelativeLayout>
 
                 <LinearLayout

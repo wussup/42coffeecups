@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -32,6 +33,9 @@ public class MainActivity extends Activity {
 
 	public final static String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/infoDB.db";
 	private ImageView user_picture;
+	private final static String TAG = "[CupsFacebook]";
+	private TextView fullName;
+	private String oldFullName = "";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,19 +43,30 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		user_picture = (ImageView)findViewById(R.id.imageView);
+		fullName = (TextView) findViewById(R.id.fullName);
 		
 		if (checkDataBase())
 			getDataFromDatabaseAndFillTextViews();
 		
 		setUpTabWidget();
 		
-		setUpListView();
-		
 		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				onClickLogout();
+			}
+		});
+		
+		findViewById(R.id.saveChangesButton).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String newFullName = fullName.getText().toString();
+				if (newFullName.compareTo(oldFullName)!=0)
+				{
+					
+				}
 			}
 		});
     }
@@ -70,20 +85,16 @@ public class MainActivity extends Activity {
 	        checkDB = SQLiteDatabase.openDatabase(DB_FULL_PATH, null,
 	                SQLiteDatabase.OPEN_READONLY);
 	        checkDB.close();
+	        Log.i(TAG, "Database exists");
 	    } catch (SQLiteException e) {
-	    	System.out.println("Database doesn't exist yet");
+	    	Log.i(TAG, "Database doesn't exist yet");
 	    }
-	    System.out.println("Database exists");
 	    return checkDB != null ? true : false;
 	}
 
-	private void setUpListView() {
+	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
 
-        final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 1; i <= 10; ++i) {
-          list.add("Contact"+i);
-        }
         final StableArrayAdapter adapter = new StableArrayAdapter(this,
             android.R.layout.simple_list_item_1, list);
         listview.setAdapter(adapter);
@@ -94,13 +105,17 @@ public class MainActivity extends Activity {
         
         Data data = helper.findData();
         
-		((EditText)findViewById(R.id.fullName)).setText(data.getName()+" "+data.getSurname());
+		fullName.setText(data.getName()+" "+data.getSurname());
+		oldFullName = fullName.getText().toString();
+		
 		if (data.getDateOfBirth()!=null)
 			((TextView)findViewById(R.id.dateOfBirth)).setText(data.getDateOfBirth());
 		else
 			((TextView)findViewById(R.id.dateOfBirth)).setText("Inaccessible");
 		((TextView)findViewById(R.id.bio)).setText(data.getBio());
 
+		setUpListView(data.getContacts());
+		
 		new RetreiveFeedTask().execute(data.getUserId());
 		
 	}

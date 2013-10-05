@@ -1,11 +1,18 @@
 package ua.cc.cupsfacebook.database;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -22,6 +29,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 	public static final String COLUMN_BIO = "bio";
 	public static final String COLUMN_DATEOFBIRTH = "dateOfBirth";
 	public static final String COLUMN_USERID = "userId";
+	public static final String COLUMN_CONTACTS = "contacts";
 	
 	public MySQLiteOpenHelper(Context context, String name,
 			CursorFactory factory, int version) {
@@ -33,7 +41,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		String CREATE_PRODUCTS_TABLE = "CREATE TABLE " +
 	             TABLE_PRODUCTS + "("
 	             + COLUMN_ID + " INTEGER PRIMARY KEY," + COLUMN_NAME 
-	             + " TEXT," + COLUMN_SURNAME + " TEXT," + COLUMN_BIO + " TEXT," + COLUMN_DATEOFBIRTH + " TEXT," + COLUMN_USERID + " TEXT" + ")";
+	             + " TEXT," + COLUMN_SURNAME + " TEXT," + COLUMN_BIO + " TEXT," 
+	             + COLUMN_DATEOFBIRTH + " TEXT," + COLUMN_USERID + " TEXT," + COLUMN_CONTACTS + " BLOB" + ")";
 		db.execSQL(CREATE_PRODUCTS_TABLE);
 	}
 
@@ -52,13 +61,50 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         values.put(COLUMN_BIO, data.getBio());
         values.put(COLUMN_DATEOFBIRTH, data.getDateOfBirth());
         values.put(COLUMN_USERID, data.getUserId());
- 
+        values.put(COLUMN_CONTACTS, arrayListToByteArray(data.getContacts()));
+        
         SQLiteDatabase db = this.getWritableDatabase();
         
         db.insert(TABLE_PRODUCTS, null, values);
         db.close();
 	}
 
+	private byte[] arrayListToByteArray(ArrayList<String> list) {
+		byte[] bytes = null;
+		try {
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        DataOutputStream out = new DataOutputStream(baos);
+	        for (String element : list) {
+	        	out.writeUTF(element);
+	        }
+	        bytes = baos.toByteArray();
+        } catch (IOException e) {
+        	Log.e(TAG, "Conversion from array list to byte array error");
+			e.printStackTrace();
+		}
+		return bytes;
+	}
+
+	private ArrayList<String> byteArrayToArrayList(byte[] bytes)
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		try
+		{
+			ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+			DataInputStream in = new DataInputStream(bais);
+			while (in.available() > 0) {
+			    String element = in.readUTF();
+			    list.add(element);
+			}
+		}
+		catch (IOException ex)
+		{
+			Log.e(TAG, "Conversion from byte array to array list error");
+			ex.printStackTrace();
+		}
+		return list;
+	}
+	
 	public Data findData() {
 		Data data = null;
 		try {
@@ -79,6 +125,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 				data.setBio(cursor.getString(3));
 				data.setDateOfBirth(cursor.getString(4));
 				data.setUserId(cursor.getString(5));
+				data.setContacts(byteArrayToArrayList(cursor.getBlob(6)));
 				cursor.close();
 			}
 			

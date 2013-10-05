@@ -12,7 +12,7 @@
         android:id="@+id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/saveChangesButton"
+        android:layout_above="@+id/editDataButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" >
 
@@ -45,7 +45,7 @@
                         android:layout_margin="5dp"
                         android:contentDescription="@string/hello_world" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/fullName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -53,7 +53,6 @@
                         android:layout_alignParentTop="true"
                         android:layout_margin="5dp"
                         android:layout_toRightOf="@+id/imageView"
-                        android:inputType="textPersonName"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge" />
                         <!--  android:inputType="textPersonName" -->
@@ -73,7 +72,7 @@
                         android:id="@+id/listView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
+                        android:layout_alignBottom="@+id/imageView"
                         android:layout_alignParentRight="true"
                         android:layout_below="@+id/dateOfBirth"
                         android:layout_margin="5dp"
@@ -87,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentLeft="true"
-                        android:layout_alignRight="@+id/imageView"
+                        android:layout_alignParentRight="true"
                         android:layout_below="@+id/imageView"
                         android:layout_margin="5dp"
                         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -121,20 +120,20 @@
     </TabHost>
 
     <Button
-        android:id="@+id/saveChangesButton"
+        android:id="@+id/editDataButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button1"
-        android:layout_alignBottom="@+id/button1"
+        android:layout_alignBaseline="@+id/logoutButton"
+        android:layout_alignBottom="@+id/logoutButton"
         android:layout_alignRight="@+id/tabhost"
-        android:text="@string/save_changes" />
+        android:text="@string/editData" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/saveChangesButton"
+        android:layout_toLeftOf="@+id/editDataButton"
         android:text="@string/logout_button" />
 
 </RelativeLayout>

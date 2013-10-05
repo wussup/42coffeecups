@@ -10,5 +10,6 @@
     <string name="login">Log In</string>
     <string name="title_activity_ma">MaActivity</string>
     <string name="save_changes">Save changes</string>
+    <string name="editData">Edit Data</string>
 
 </resources>

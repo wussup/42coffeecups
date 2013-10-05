@@ -10,6 +10,7 @@ public class Data {
 	private String dateOfBirth;
 	private String userId;
 	private ArrayList<String> contacts;
+	private String about;
 	
 	public Data() {
 	}
@@ -34,7 +35,6 @@ public class Data {
 
 	public Data(String name, String surname, String bio, String dateOfBirth,
 			String userId, ArrayList<String> contacts) {
-		super();
 		this.name = name;
 		this.surname = surname;
 		this.bio = bio;
@@ -45,7 +45,6 @@ public class Data {
 
 	public Data(int id, String name, String surname, String bio,
 			String dateOfBirth, String userId, ArrayList<String> contacts) {
-		super();
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
@@ -53,6 +52,31 @@ public class Data {
 		this.dateOfBirth = dateOfBirth;
 		this.userId = userId;
 		this.contacts = contacts;
+	}
+	
+	public Data(int id, String name, String surname, String bio,
+			String dateOfBirth, String userId, ArrayList<String> contacts,
+			String about) {
+		this.id = id;
+		this.name = name;
+		this.surname = surname;
+		this.bio = bio;
+		this.dateOfBirth = dateOfBirth;
+		this.userId = userId;
+		this.contacts = contacts;
+		this.about = about;
+	}
+	
+	public Data(String name, String surname, String bio, String dateOfBirth,
+			String userId, ArrayList<String> contacts, String about) {
+		super();
+		this.name = name;
+		this.surname = surname;
+		this.bio = bio;
+		this.dateOfBirth = dateOfBirth;
+		this.userId = userId;
+		this.contacts = contacts;
+		this.about = about;
 	}
 
 	public int getId() {
@@ -114,5 +138,13 @@ public class Data {
 
 	public void setContacts(ArrayList<String> contacts) {
 		this.contacts = contacts;
+	}
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
 	}
 }

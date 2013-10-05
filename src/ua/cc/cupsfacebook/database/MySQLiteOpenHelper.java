@@ -30,6 +30,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 	public static final String COLUMN_DATEOFBIRTH = "dateOfBirth";
 	public static final String COLUMN_USERID = "userId";
 	public static final String COLUMN_CONTACTS = "contacts";
+	public static final String COLUMN_ABOUT = "about";
 	
 	public MySQLiteOpenHelper(Context context, String name,
 			CursorFactory factory, int version) {
@@ -42,7 +43,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 	             TABLE_PRODUCTS + "("
 	             + COLUMN_ID + " INTEGER PRIMARY KEY," + COLUMN_NAME 
 	             + " TEXT," + COLUMN_SURNAME + " TEXT," + COLUMN_BIO + " TEXT," 
-	             + COLUMN_DATEOFBIRTH + " TEXT," + COLUMN_USERID + " TEXT," + COLUMN_CONTACTS + " BLOB" + ")";
+	             + COLUMN_DATEOFBIRTH + " TEXT," + COLUMN_USERID + " TEXT," + COLUMN_CONTACTS + " BLOB," + COLUMN_ABOUT + " TEXT" + ")";
 		db.execSQL(CREATE_PRODUCTS_TABLE);
 	}
 
@@ -62,6 +63,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DATEOFBIRTH, data.getDateOfBirth());
         values.put(COLUMN_USERID, data.getUserId());
         values.put(COLUMN_CONTACTS, arrayListToByteArray(data.getContacts()));
+        values.put(COLUMN_ABOUT, data.getAbout());
         
         SQLiteDatabase db = this.getWritableDatabase();
         
@@ -126,6 +128,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 				data.setDateOfBirth(cursor.getString(4));
 				data.setUserId(cursor.getString(5));
 				data.setContacts(byteArrayToArrayList(cursor.getBlob(6)));
+				data.setAbout(cursor.getString(7));
 				cursor.close();
 			}
 			
@@ -136,6 +139,79 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 			Log.e(TAG, ex.getMessage());
 		}
 		return data;
+	}
+
+	public boolean updateNameAndSurname(int id, String newName, String newSurname) {
+		try {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_NAME, newName);
+			cv.put(COLUMN_SURNAME, newSurname);
+			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
+			
+		    db.close();
+		}
+		catch (SQLiteException ex)
+		{
+			Log.e(TAG, ex.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean updateAbout(int id, String newAbout) {
+		try {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_ABOUT, newAbout);
+			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
+			
+		    db.close();
+		}
+		catch (SQLiteException ex)
+		{
+			Log.e(TAG, ex.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean updateDateOfBirth(int id, String newDate) {
+		try {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_DATEOFBIRTH, newDate);
+			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
+			
+		    db.close();
+		}
+		catch (SQLiteException ex)
+		{
+			Log.e(TAG, ex.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean updateBio(int id, String newBio) {
+		try {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_BIO, newBio);
+			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
+			
+		    db.close();
+		}
+		catch (SQLiteException ex)
+		{
+			Log.e(TAG, ex.getMessage());
+			return false;
+		}
+		return true;
 	}
 	
 }

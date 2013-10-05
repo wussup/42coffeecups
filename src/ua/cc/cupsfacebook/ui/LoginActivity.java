@@ -52,6 +52,8 @@ public class LoginActivity extends FragmentActivity  {
             // Setting Dialog Message
             alertDialog.setMessage("You should find Internet connection!");
  
+            alertDialog.setCancelable(false);
+            
             // Setting OK Button
             alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
  

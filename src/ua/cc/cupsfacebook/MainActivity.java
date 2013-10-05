@@ -163,14 +163,14 @@ public class MainActivity extends Activity {
         spec.setContent(R.id.tab1); 
         spec.setIndicator("Info"); 
         tabs.addTab(spec);
-        spec=tabs.newTabSpec("tag2"); 
+     /*   spec=tabs.newTabSpec("tag2"); 
         spec.setContent(R.id.tab2); 
         spec.setIndicator("About"); 
         tabs.addTab(spec);
         spec=tabs.newTabSpec("tag3"); 
         spec.setContent(R.id.tab3); 
         spec.setIndicator("Tab3"); 
-        tabs.addTab(spec); 
+        tabs.addTab(spec);*/ 
         tabs.setCurrentTab(0);
 	}
 	

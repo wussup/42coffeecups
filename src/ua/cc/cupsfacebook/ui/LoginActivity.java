@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.facebook.LoggingBehavior;
 import com.facebook.Request;
@@ -83,6 +82,10 @@ public class LoginActivity extends FragmentActivity  {
                 session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
             }
         }
+        else
+        {
+        	runIfOpened(session);
+        }
         
         findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			
@@ -93,6 +96,24 @@ public class LoginActivity extends FragmentActivity  {
 		});
 	}
 
+	private void runIfOpened(Session session) {
+		if (session.isOpened()) {
+			
+			if (isNetworkAvailable())
+			{
+		    	if (!checkDataBase())
+		    	{
+		    		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+		    		makeMeRequest(session);
+		    	}
+		    	else
+		    	{
+		    		startMainActivity();
+		    	}
+			}
+		}
+	}
+	
 	private boolean isNetworkAvailable() {
 	    ConnectivityManager connectivityManager 
 	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -170,22 +191,7 @@ public class LoginActivity extends FragmentActivity  {
      
     private void updateView() {
         Session session = Session.getActiveSession();
-        if (session.isOpened()) {
-        	
-        	if (!checkDataBase())
-        	{
-        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
-        		makeMeRequest(session);
-        	}
-        	else
-        	{
-        		startMainActivity();
-        	}
-        	
-        	
-        } else {
-        	Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
-        }
+        runIfOpened(session);
     }
 
 	private void startMainActivity() {

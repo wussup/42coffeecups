@@ -84,21 +84,7 @@ public class LoginActivity extends FragmentActivity  {
         }
         else
         {
-        	if (session.isOpened()) {
-            	
-            	if (isNetworkAvailable())
-            	{
-    	        	if (!checkDataBase())
-    	        	{
-    	        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
-    	        		makeMeRequest(session);
-    	        	}
-    	        	else
-    	        	{
-    	        		startMainActivity();
-    	        	}
-            	}
-            }
+        	runIfOpened(session);
         }
         
         findViewById(R.id.logoutButton).setOnClickListener(new View.OnClickListener() {
@@ -108,6 +94,24 @@ public class LoginActivity extends FragmentActivity  {
 				onClickLogin();
 			}
 		});
+	}
+
+	private void runIfOpened(Session session) {
+		if (session.isOpened()) {
+			
+			if (isNetworkAvailable())
+			{
+		    	if (!checkDataBase())
+		    	{
+		    		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+		    		makeMeRequest(session);
+		    	}
+		    	else
+		    	{
+		    		startMainActivity();
+		    	}
+			}
+		}
 	}
 
 	private boolean isNetworkAvailable() {
@@ -188,23 +192,7 @@ public class LoginActivity extends FragmentActivity  {
      
     private void updateView() {
         Session session = Session.getActiveSession();
-        if (session.isOpened()) {
-        	
-        	if (isNetworkAvailable())
-        	{
-	        	if (!checkDataBase())
-	        	{
-	        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
-	        		makeMeRequest(session);
-	        	}
-	        	else
-	        	{
-	        		startMainActivity();
-	        	}
-        	}
-        } else {
-        	//Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
-        }
+        runIfOpened(session);
     }
 
 	private void startMainActivity() {

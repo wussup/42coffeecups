@@ -7,11 +7,12 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity" >
-    
+
     <TabHost
         android:id="@+id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/editDataButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" >
 
@@ -25,18 +26,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="visible" >
-
             </TabWidget>
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="288dp" >
+                android:layout_height="match_parent" >
 
                 <RelativeLayout
                     android:id="@+id/tab1"
                     android:layout_width="match_parent"
-                    android:layout_height="328dp" >
+                    android:layout_height="match_parent" >
 
                     <ImageView
                         android:id="@+id/imageView"
@@ -44,18 +44,6 @@
                         android:layout_height="128dp"
                         android:layout_margin="5dp"
                         android:contentDescription="@string/hello_world" />
-
-                    <TextView
-                        android:id="@+id/bio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@+id/listView"
-                        android:layout_margin="5dp"
-                        android:text=""
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
 
                     <TextView
                         android:id="@+id/fullName"
@@ -89,7 +77,20 @@
                         android:layout_below="@+id/dateOfBirth"
                         android:layout_margin="5dp"
                         android:layout_toRightOf="@+id/imageView" >
+
                     </ListView>
+
+                    <TextView
+                        android:id="@+id/bio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/imageView"
+                        android:layout_margin="5dp"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
                 </RelativeLayout>
 
                 <LinearLayout
@@ -97,6 +98,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
+
+                    <EditText
+                        android:id="@+id/about_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine" >
+
+                        <requestFocus />
+                    </EditText>
                 </LinearLayout>
 
                 <LinearLayout
@@ -105,19 +115,25 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
                 </LinearLayout>
-
             </FrameLayout>
-
         </LinearLayout>
-
     </TabHost>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/editDataButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/logoutButton"
+        android:layout_alignBottom="@+id/logoutButton"
+        android:layout_alignRight="@+id/tabhost"
+        android:text="@string/editData" />
+
+    <Button
+        android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tabhost"
         android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/editDataButton"
         android:text="@string/logout_button" />
-    
+
 </RelativeLayout>

@@ -3,6 +3,8 @@
  */
 package ua.cc.cupsfacebook.test;
 
+import java.util.ArrayList;
+
 import ua.cc.cupsfacebook.database.Data;
 import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
 import android.test.AndroidTestCase;
@@ -14,7 +16,7 @@ import android.test.AndroidTestCase;
 public class MySQLiteOpenHelperTests extends AndroidTestCase {
 
 	private MySQLiteOpenHelper db;
-	private static final String TABLE_PRODUCTS = "user_info";
+	//private static final String TABLE_PRODUCTS = "user_info";
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -45,7 +47,11 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 	 * Test method for {@link ua.cc.cups.database.MySQLiteOpenHelper#addData(ua.cc.cups.database.Data)}.
 	 */
 	public void testAddDataAndFindData() {
-        Data data = new Data("Taras", "Melon", "Was born in...", "05-02-1992", "1");
+		ArrayList<String> list = new ArrayList<String>();
+		for (int i=1; i<10; i++)
+			list.add("Contact"+i);
+		
+        Data data = new Data("Taras", "Melon", "Was born in...", "05-02-1992", "1", list, "");
         
         db.addData(data);
         
@@ -55,26 +61,12 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
         assertEquals(data.getName(), fetchedData.getName());
         assertEquals(data.getSurname(), fetchedData.getSurname());
         assertEquals(data.getUserId(), fetchedData.getUserId());
-	}
-	
-	public void testFindDataWithoutAddData()
-	{
-		db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
-		
-		Data fetchedData = db.findData();
-		
-		String CREATE_PRODUCTS_TABLE = "CREATE TABLE " +
-	             TABLE_PRODUCTS + "("
-	             + MySQLiteOpenHelper.COLUMN_ID + " INTEGER PRIMARY KEY," + MySQLiteOpenHelper.COLUMN_NAME 
-	             + " TEXT," + MySQLiteOpenHelper.COLUMN_SURNAME + " TEXT," + MySQLiteOpenHelper.COLUMN_BIO + " TEXT," + MySQLiteOpenHelper.COLUMN_DATEOFBIRTH + " TEXT" + ")";
-		db.getWritableDatabase().execSQL(CREATE_PRODUCTS_TABLE);
-		
-        assertNull(fetchedData);
-	}
-
-	public void testOnUpgrade()
-	{
-		db.onUpgrade(db.getWritableDatabase(), 1, 2);
-		assertEquals(2, db.getWritableDatabase().getVersion());
+        int i=0;
+        for (String el : fetchedData.getContacts())
+        {
+        	assertEquals(list.get(i), el);
+        	i++;
+        }
+        assertEquals(data.getAbout(), fetchedData.getAbout());
 	}
 }

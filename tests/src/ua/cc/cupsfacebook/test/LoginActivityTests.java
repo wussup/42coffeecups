@@ -27,7 +27,7 @@ public class LoginActivityTests extends
 		mActivity = getActivity();
 		assertNotNull(mActivity);
 		
-		mButton = (Button)mActivity.findViewById(R.id.button1);
+		mButton = (Button)mActivity.findViewById(R.id.logoutButton);
 		assertNotNull(mButton);
 	}
 	

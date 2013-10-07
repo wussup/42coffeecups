@@ -84,7 +84,7 @@ public class LoginActivity extends FragmentActivity  {
             }
         }
         
-        findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.logoutButton).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -119,7 +119,8 @@ public class LoginActivity extends FragmentActivity  {
 	                	
 	                	dialog.dismiss();
 	                	
-	                	startMainActivity();
+	                	if (isNetworkAvailable())
+	                		startMainActivity();
 	                }
 	            }
 	            if (response.getError() != null) {
@@ -138,7 +139,7 @@ public class LoginActivity extends FragmentActivity  {
           list.add("Contact"+i);
         }
 		
-        Data data = new Data(user.getFirstName(), user.getLastName(), "Homepage: " + user.getLink(), user.getBirthday(), user.getId(), list);
+        Data data = new Data(user.getFirstName(), user.getLastName(), "Homepage: " + user.getLink(), user.getBirthday(), user.getId(), list, "");
         
         helper.addData(data);
 	}
@@ -172,17 +173,18 @@ public class LoginActivity extends FragmentActivity  {
         Session session = Session.getActiveSession();
         if (session.isOpened()) {
         	
-        	if (!checkDataBase())
+        	if (isNetworkAvailable())
         	{
-        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
-        		makeMeRequest(session);
+	        	if (!checkDataBase())
+	        	{
+	        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+	        		makeMeRequest(session);
+	        	}
+	        	else
+	        	{
+	        		startMainActivity();
+	        	}
         	}
-        	else
-        	{
-        		startMainActivity();
-        	}
-        	
-        	
         } else {
         	Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
         }

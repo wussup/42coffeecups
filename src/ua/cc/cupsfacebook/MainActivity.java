@@ -11,6 +11,7 @@ import ua.cc.cupsfacebook.database.Data;
 import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -21,10 +22,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Session;
 
@@ -33,24 +37,71 @@ public class MainActivity extends Activity {
 	public final static String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/infoDB.db";
 	private ImageView user_picture;
 	private final static String TAG = "[CupsFacebook]";
+	private TextView fullName;
+	private String oldAbout = "";
+	private int id = -1;
+	private Button editDataButton;
+	private int currentTab = 1;
+	private TextView about;
+	private Data currentData;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		editDataButton = (Button) findViewById(R.id.editDataButton);
 		user_picture = (ImageView)findViewById(R.id.imageView);
+		fullName = (TextView) findViewById(R.id.fullName);
+		about = (TextView) findViewById(R.id.about_info);
 		
 		if (checkDataBase())
 			getDataFromDatabaseAndFillTextViews();
 		
 		setUpTabWidget();
 		
-		findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.logoutButton).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				onClickLogout();
+			}
+		});
+		
+		findViewById(R.id.editDataButton).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (currentTab==2)
+				{
+					String newAbout = about.getText().toString();
+					if (newAbout.compareTo(oldAbout)!=0)
+					{
+						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
+						
+						if (helper.updateAbout(id, newAbout))
+						{
+							oldAbout = newAbout;
+						
+							Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
+						}
+					}
+					else
+					{
+						Toast.makeText(MainActivity.this, "You did not change data!", Toast.LENGTH_SHORT).show();
+					}
+				}
+				else if (currentTab==1)
+				{
+					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
+					i.putExtra("NAME", currentData.getName());
+					i.putExtra("SURNAME", currentData.getSurname());
+					i.putExtra("BIO", currentData.getBio());
+					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
+					i.putExtra("ID", id);
+					startActivity(i);
+					MainActivity.this.finish();
+				}
 			}
 		});
     }
@@ -88,14 +139,21 @@ public class MainActivity extends Activity {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
         
         Data data = helper.findData();
+        currentData = data;
         
-		((TextView)findViewById(R.id.fullName)).setText(data.getName()+" "+data.getSurname());
+        String fullNameString = data.getName()+" "+data.getSurname();
+		fullName.setText(fullNameString);
+		
+		id = data.getId();
+		
 		if (data.getDateOfBirth()!=null)
 			((TextView)findViewById(R.id.dateOfBirth)).setText(data.getDateOfBirth());
 		else
 			((TextView)findViewById(R.id.dateOfBirth)).setText("Inaccessible");
 		((TextView)findViewById(R.id.bio)).setText(data.getBio());
-
+		
+		((TextView) findViewById(R.id.about_info)).setText(data.getAbout());
+		
 		setUpListView(data.getContacts());
 		
 		new RetreiveFeedTask().execute(data.getUserId());
@@ -158,19 +216,36 @@ public class MainActivity extends Activity {
 
 	private void setUpTabWidget() {
 		TabHost tabs=(TabHost)findViewById(R.id.tabhost); 
+		tabs.setOnTabChangedListener(new OnTabChangeListener() {
+			
+			@Override
+			public void onTabChanged(String tabId) {
+				if (tabId.compareToIgnoreCase("tag1")==0)
+				{
+					editDataButton.setText("Edit Data");
+					currentTab = 1;
+				}
+				else if (tabId.compareTo("tag2")==0)
+				{
+					editDataButton.setText("Save Info");
+					currentTab = 2;
+				}
+			}
+		});
         tabs.setup(); 
         TabHost.TabSpec spec=tabs.newTabSpec("tag1"); 
         spec.setContent(R.id.tab1); 
         spec.setIndicator("Info"); 
         tabs.addTab(spec);
-     /*   spec=tabs.newTabSpec("tag2"); 
+        spec=tabs.newTabSpec("tag2"); 
         spec.setContent(R.id.tab2); 
         spec.setIndicator("About"); 
         tabs.addTab(spec);
-        spec=tabs.newTabSpec("tag3"); 
+        /*spec=tabs.newTabSpec("tag3"); 
         spec.setContent(R.id.tab3); 
         spec.setIndicator("Tab3"); 
-        tabs.addTab(spec);*/ 
+<<<<<<< HEAD
+        tabs.addTab(spec); */
         tabs.setCurrentTab(0);
 	}
 	

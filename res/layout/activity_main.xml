@@ -93,21 +93,66 @@
 
                 </RelativeLayout>
 
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
 
-                    <EditText
-                        android:id="@+id/about_info"
+                    <ImageView
+                        android:id="@+id/imageViewMine"
+                        android:layout_width="128dp"
+                        android:layout_height="128dp"
+                        android:layout_margin="5dp"
+                        android:contentDescription="@string/hello_world"
+                        android:src="@drawable/photo" />
+
+                    <TextView
+                        android:id="@+id/fullNameMine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_margin="5dp"
+                        android:layout_toRightOf="@+id/imageViewMine"
+                        android:text=""
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
+                        <!--  android:inputType="textPersonName" -->
+                        
+
+                    <TextView
+                        android:id="@+id/dateOfBirthMine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/fullNameMine"
+                        android:layout_margin="5dp"
+                        android:layout_toRightOf="@+id/imageViewMine"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <ListView
+                        android:id="@+id/listViewMine"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine" >
+                        android:layout_alignBottom="@+id/imageViewMine"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/dateOfBirthMine"
+                        android:layout_margin="5dp"
+                        android:layout_toRightOf="@+id/imageViewMine" >
 
-                        <requestFocus />
-                    </EditText>
-                </LinearLayout>
+                    </ListView>
+
+                    <TextView
+                        android:id="@+id/bioMine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/imageViewMine"
+                        android:layout_margin="5dp"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                </RelativeLayout>
 
                 <LinearLayout
                     android:id="@+id/tab3"

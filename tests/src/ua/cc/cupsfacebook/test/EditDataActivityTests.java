@@ -4,9 +4,6 @@ import ua.cc.cupsfacebook.EditDataActivity;
 import ua.cc.cupsfacebook.R;
 import android.annotation.SuppressLint;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.ViewAsserts;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.View;
 import android.widget.TextView;
 
 public class EditDataActivityTests extends

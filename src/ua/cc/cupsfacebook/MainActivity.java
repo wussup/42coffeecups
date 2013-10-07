@@ -38,6 +38,7 @@ public class MainActivity extends Activity {
 	private ImageView user_picture;
 	private final static String TAG = "[CupsFacebook]";
 	private TextView fullName;
+	private TextView myFullName;
 	private String oldAbout = "";
 	private int id = -1;
 	private Button editDataButton;
@@ -53,7 +54,8 @@ public class MainActivity extends Activity {
 		editDataButton = (Button) findViewById(R.id.editDataButton);
 		user_picture = (ImageView)findViewById(R.id.imageView);
 		fullName = (TextView) findViewById(R.id.fullName);
-		about = (TextView) findViewById(R.id.about_info);
+		
+		myFullName = (TextView) findViewById(R.id.fullNameMine);
 		
 		if (checkDataBase())
 			getDataFromDatabaseAndFillTextViews();
@@ -135,6 +137,14 @@ public class MainActivity extends Activity {
         listview.setAdapter(adapter);
 	}
 
+	private void setUpMyListView(ArrayList<String> list) {
+		final ListView listview = (ListView) findViewById(R.id.listViewMine);
+
+        final StableArrayAdapter adapter = new StableArrayAdapter(this,
+            android.R.layout.simple_list_item_1, list);
+        listview.setAdapter(adapter);
+	}
+	
 	@Override
 	public void onBackPressed() {
 		finish();
@@ -143,7 +153,10 @@ public class MainActivity extends Activity {
 	private void getDataFromDatabaseAndFillTextViews() {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
         
-        Data data = helper.findData();
+        ArrayList<Data> dataList = helper.findData();
+        
+        Data data = dataList.get(0);
+        
         currentData = data;
         
         String fullNameString = data.getName()+" "+data.getSurname();
@@ -157,12 +170,22 @@ public class MainActivity extends Activity {
 			((TextView)findViewById(R.id.dateOfBirth)).setText("Inaccessible");
 		((TextView)findViewById(R.id.bio)).setText(data.getBio());
 		
-		((TextView) findViewById(R.id.about_info)).setText(data.getAbout());
-		
 		setUpListView(data.getContacts());
 		
 		new RetreiveFeedTask().execute(data.getUserId());
 		
+		data = dataList.get(1);
+        
+        fullNameString = data.getName()+" "+data.getSurname();
+		myFullName.setText(fullNameString);
+		
+		if (data.getDateOfBirth()!=null)
+			((TextView)findViewById(R.id.dateOfBirthMine)).setText(data.getDateOfBirth());
+		else
+			((TextView)findViewById(R.id.dateOfBirthMine)).setText("Inaccessible");
+		((TextView)findViewById(R.id.bioMine)).setText(data.getBio());
+		
+		setUpMyListView(data.getContacts());
 	}
 	
 	private class StableArrayAdapter extends ArrayAdapter<String> {
@@ -227,12 +250,14 @@ public class MainActivity extends Activity {
 			public void onTabChanged(String tabId) {
 				if (tabId.compareToIgnoreCase("tag1")==0)
 				{
-					editDataButton.setText("Edit Data");
+					editDataButton.setEnabled(true);
+					//editDataButton.setText("Edit Data");
 					currentTab = 1;
 				}
 				else if (tabId.compareTo("tag2")==0)
 				{
-					editDataButton.setText("Save Info");
+//					editDataButton.setText("Save Info");
+					editDataButton.setEnabled(false);
 					currentTab = 2;
 				}
 			}
@@ -240,7 +265,7 @@ public class MainActivity extends Activity {
         tabs.setup(); 
         TabHost.TabSpec spec=tabs.newTabSpec("tag1"); 
         spec.setContent(R.id.tab1); 
-        spec.setIndicator("Info"); 
+        spec.setIndicator("Main"); 
         tabs.addTab(spec);
         spec=tabs.newTabSpec("tag2"); 
         spec.setContent(R.id.tab2); 

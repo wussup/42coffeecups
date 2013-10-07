@@ -96,6 +96,19 @@ public class LoginActivity extends FragmentActivity  {
 		});
 	}
 
+	private void addDataToDatabase() {
+		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
+        
+		final ArrayList<String> list = new ArrayList<String>();
+        for (int i = 1; i <= 10; ++i) {
+          list.add("Contact"+i);
+        }
+		
+        Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992", "1", list);
+        
+        helper.addData(data);
+	}
+	
 	private void runIfOpened(Session session) {
 		if (session.isOpened()) {
 			
@@ -137,6 +150,8 @@ public class LoginActivity extends FragmentActivity  {
 	                    // Set the Textview's text to the user's name.
 	                	
 	                	addDataToDatabase(user);
+	                	
+	                	addDataToDatabase();
 	                	
 	                	dialog.dismiss();
 	                	

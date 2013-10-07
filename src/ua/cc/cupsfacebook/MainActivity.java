@@ -135,6 +135,11 @@ public class MainActivity extends Activity {
         listview.setAdapter(adapter);
 	}
 
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
+
 	private void getDataFromDatabaseAndFillTextViews() {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
         

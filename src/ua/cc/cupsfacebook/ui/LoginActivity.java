@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.facebook.LoggingBehavior;
 import com.facebook.Request;
@@ -81,6 +80,24 @@ public class LoginActivity extends FragmentActivity  {
             Session.setActiveSession(session);
             if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED)) {
                 session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
+            }
+        }
+        else
+        {
+        	if (session.isOpened()) {
+            	
+            	if (isNetworkAvailable())
+            	{
+    	        	if (!checkDataBase())
+    	        	{
+    	        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+    	        		makeMeRequest(session);
+    	        	}
+    	        	else
+    	        	{
+    	        		startMainActivity();
+    	        	}
+            	}
             }
         }
         
@@ -186,7 +203,7 @@ public class LoginActivity extends FragmentActivity  {
 	        	}
         	}
         } else {
-        	Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
+        	//Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
         }
     }
 

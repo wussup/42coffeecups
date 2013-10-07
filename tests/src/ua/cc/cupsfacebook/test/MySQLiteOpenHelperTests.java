@@ -55,7 +55,8 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
         
         db.addData(data);
         
-        Data fetchedData = db.findData();
+        ArrayList<Data> dataList = db.findData();
+        Data fetchedData = dataList.get(0);
         assertEquals(data.getBio(), fetchedData.getBio());
         assertEquals(data.getDateOfBirth(), fetchedData.getDateOfBirth());
         assertEquals(data.getName(), fetchedData.getName());

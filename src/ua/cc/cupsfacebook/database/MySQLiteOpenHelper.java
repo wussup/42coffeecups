@@ -107,7 +107,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		return list;
 	}
 	
-	public Data findData() {
+	public ArrayList<Data> findData() {
+		ArrayList<Data> dataList = new ArrayList<Data>();
 		Data data = null;
 		try {
 			String query = "Select * FROM " + TABLE_PRODUCTS;
@@ -129,6 +130,22 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 				data.setUserId(cursor.getString(5));
 				data.setContacts(byteArrayToArrayList(cursor.getBlob(6)));
 				data.setAbout(cursor.getString(7));
+				dataList.add(data);
+				
+				if (cursor.moveToNext())
+				{
+					data = new Data();
+					data.setId(Integer.parseInt(cursor.getString(0)));
+					data.setName(cursor.getString(1));
+					data.setSurname(cursor.getString(2));
+					data.setBio(cursor.getString(3));
+					data.setDateOfBirth(cursor.getString(4));
+					data.setUserId(cursor.getString(5));
+					data.setContacts(byteArrayToArrayList(cursor.getBlob(6)));
+					data.setAbout(cursor.getString(7));
+					dataList.add(data);
+				}
+					
 				cursor.close();
 			}
 			
@@ -138,7 +155,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		{
 			Log.e(TAG, ex.getMessage());
 		}
-		return data;
+		return dataList;
 	}
 
 	public boolean updateName(int id, String newName) {

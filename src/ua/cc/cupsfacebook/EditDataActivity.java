@@ -11,8 +11,8 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +29,7 @@ public class EditDataActivity extends Activity {
 	private String oldStringDateOfBirth;
 	private int id;
 	private Calendar myCalendar;
-	private static final String TAG = "[CupsFacebook]";
+	//private static final String TAG = "[CupsFacebook]";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +52,11 @@ public class EditDataActivity extends Activity {
 		name.setText(oldStringName);
 		surname.setText(oldStringSurname);
 		bio.setText(oldStringBio);
-		dateOfBirth.setText(oldStringDateOfBirth);
 		
 		myCalendar = Calendar.getInstance();
+		
+		
+		dateOfBirth.setText(oldStringDateOfBirth);
 
 		final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
@@ -72,15 +74,9 @@ public class EditDataActivity extends Activity {
 
 	        @Override
 	        public void onClick(View v) {
-	        	
-	        	String[] stringDate = dateOfBirth.getText().toString().split("/");
-	        	
-	        	Log.i(TAG, Integer.valueOf(stringDate[2])+";"+Integer.valueOf(stringDate[0])+";"+Integer.valueOf(stringDate[1]));
-	        	
-	            new DatePickerDialog(EditDataActivity.this, date, Integer.valueOf(stringDate[2]),
-	            		Integer.valueOf(stringDate[0])-1,
-	            		Integer.valueOf(stringDate[1])).show();
+	        	onClickAndFocusMethod(date);
 	        }
+
 	    });    
 		
 		findViewById(R.id.buttonSaveChanges).setOnClickListener(new View.OnClickListener() {
@@ -147,6 +143,38 @@ public class EditDataActivity extends Activity {
 			    }
 			}
 		});
+		
+		name.requestFocus();
+	
+		dateOfBirth.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus)
+				{
+					onClickAndFocusMethod(date);
+				}
+			}
+		});
+	}
+	
+	private void onClickAndFocusMethod(
+			final DatePickerDialog.OnDateSetListener date) {
+		String dateString = dateOfBirth.getText().toString();
+    	if (dateString.compareTo("")!=0)
+    	{
+        	String[] stringDate = dateString.split("/");
+        	
+            new DatePickerDialog(EditDataActivity.this, date, Integer.valueOf(stringDate[2]),
+            		Integer.valueOf(stringDate[0])-1,
+            		Integer.valueOf(stringDate[1])).show();
+    	}
+    	else
+    	{
+    		new DatePickerDialog(EditDataActivity.this, date, myCalendar
+                    .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+    	}
 	}
 	
 	private void updateLabel() 

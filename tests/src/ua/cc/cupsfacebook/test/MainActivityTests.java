@@ -13,7 +13,6 @@ import android.test.ViewAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -31,10 +30,8 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 	private TextView mFullName;
 	private ListView mListView;
 	private ImageView mImageView;
-	private EditText mAboutInfo;
 	private Button editData;
 	private Button logout;
-	private static final String testString = "Hello World";
 	private TabHost tabs;
 	
 	/**
@@ -65,8 +62,6 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		assertNotNull(mListView);
 		mImageView = (ImageView) mActivity.findViewById(R.id.imageView);
 		assertNotNull(mImageView);
-		mAboutInfo = (EditText) mActivity.findViewById(R.id.about_info);
-		assertNotNull(mAboutInfo);
 		editData = (Button) mActivity.findViewById(R.id.editDataButton);
 		assertNotNull(editData);
 		logout = (Button) mActivity.findViewById(R.id.logoutButton);
@@ -93,7 +88,6 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		ViewAsserts.assertOnScreen(origin, mFullName);
 		ViewAsserts.assertOnScreen(origin, mListView);
 		ViewAsserts.assertOnScreen(origin, mImageView);
-		ViewAsserts.assertOnScreen(origin, mAboutInfo);
 		ViewAsserts.assertOnScreen(origin, editData);
 		ViewAsserts.assertOnScreen(origin, logout);
 	}
@@ -108,17 +102,7 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 			    } catch (InterruptedException e) {
 			      e.printStackTrace();
 			    }
-		    	
-		    	//tests for about tab
-		    	tabs.setCurrentTab(1);
-		    	
-		    	mAboutInfo.setText(testString);
-		    	editData.performClick();
-		    	
-		    	mActivity.finish();
-				mActivity = getActivity(); 
-				assertEquals(testString, ((TextView)mActivity.findViewById(R.id.about_info)).getText());
-				
+		  
 		    	// register next activity that need to be monitored.
 				ActivityMonitor activityMonitor = getInstrumentation().addMonitor(EditDataActivity.class.getName(), null, false);
 		    	

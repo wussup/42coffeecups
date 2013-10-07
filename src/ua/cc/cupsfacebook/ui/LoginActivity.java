@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.facebook.LoggingBehavior;
 import com.facebook.Request;
@@ -83,6 +82,10 @@ public class LoginActivity extends FragmentActivity  {
                 session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
             }
         }
+        else
+        {
+        	runIfOpened(session);
+        }
         
         findViewById(R.id.logoutButton).setOnClickListener(new View.OnClickListener() {
 			
@@ -91,6 +94,37 @@ public class LoginActivity extends FragmentActivity  {
 				onClickLogin();
 			}
 		});
+	}
+
+	private void addDataToDatabase() {
+		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
+        
+		final ArrayList<String> list = new ArrayList<String>();
+        for (int i = 1; i <= 10; ++i) {
+          list.add("Contact"+i);
+        }
+		
+        Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992", "1", list);
+        
+        helper.addData(data);
+	}
+	
+	private void runIfOpened(Session session) {
+		if (session.isOpened()) {
+			
+			if (isNetworkAvailable())
+			{
+		    	if (!checkDataBase())
+		    	{
+		    		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+		    		makeMeRequest(session);
+		    	}
+		    	else
+		    	{
+		    		startMainActivity();
+		    	}
+			}
+		}
 	}
 
 	private boolean isNetworkAvailable() {
@@ -116,6 +150,8 @@ public class LoginActivity extends FragmentActivity  {
 	                    // Set the Textview's text to the user's name.
 	                	
 	                	addDataToDatabase(user);
+	                	
+	                	addDataToDatabase();
 	                	
 	                	dialog.dismiss();
 	                	
@@ -171,23 +207,7 @@ public class LoginActivity extends FragmentActivity  {
      
     private void updateView() {
         Session session = Session.getActiveSession();
-        if (session.isOpened()) {
-        	
-        	if (isNetworkAvailable())
-        	{
-	        	if (!checkDataBase())
-	        	{
-	        		dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
-	        		makeMeRequest(session);
-	        	}
-	        	else
-	        	{
-	        		startMainActivity();
-	        	}
-        	}
-        } else {
-        	Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
-        }
+        runIfOpened(session);
     }
 
 	private void startMainActivity() {

@@ -141,12 +141,29 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		return data;
 	}
 
-	public boolean updateNameAndSurname(int id, String newName, String newSurname) {
+	public boolean updateName(int id, String newName) {
 		try {
 			SQLiteDatabase db = this.getWritableDatabase();
 			
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_NAME, newName);
+			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
+			
+		    db.close();
+		}
+		catch (SQLiteException ex)
+		{
+			Log.e(TAG, ex.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean updateSurname(int id, String newSurname) {
+		try {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_SURNAME, newSurname);
 			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
 			

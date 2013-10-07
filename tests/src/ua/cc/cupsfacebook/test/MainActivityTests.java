@@ -3,15 +3,20 @@
  */
 package ua.cc.cupsfacebook.test;
 
-import ua.cc.cupsfacebook.R;
+import ua.cc.cupsfacebook.EditDataActivity;
 import ua.cc.cupsfacebook.MainActivity;
+import ua.cc.cupsfacebook.R;
 import android.annotation.SuppressLint;
+import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.ViewAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 /**
@@ -26,7 +31,11 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 	private TextView mFullName;
 	private ListView mListView;
 	private ImageView mImageView;
-	private static final String DATABASE_NAME = "infoDB.db";
+	private EditText mAboutInfo;
+	private Button editData;
+	private Button logout;
+	private static final String testString = "Hello World";
+	private TabHost tabs;
 	
 	/**
 	 * @param name
@@ -56,7 +65,14 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		assertNotNull(mListView);
 		mImageView = (ImageView) mActivity.findViewById(R.id.imageView);
 		assertNotNull(mImageView);
-		
+		mAboutInfo = (EditText) mActivity.findViewById(R.id.about_info);
+		assertNotNull(mAboutInfo);
+		editData = (Button) mActivity.findViewById(R.id.editDataButton);
+		assertNotNull(editData);
+		logout = (Button) mActivity.findViewById(R.id.logoutButton);
+		assertNotNull(logout);
+		tabs = (TabHost)mActivity.findViewById(R.id.tabhost); 
+		assertNotNull(tabs);
 	}
 
 	/* (non-Javadoc)
@@ -77,24 +93,78 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		ViewAsserts.assertOnScreen(origin, mFullName);
 		ViewAsserts.assertOnScreen(origin, mListView);
 		ViewAsserts.assertOnScreen(origin, mImageView);
+		ViewAsserts.assertOnScreen(origin, mAboutInfo);
+		ViewAsserts.assertOnScreen(origin, editData);
+		ViewAsserts.assertOnScreen(origin, logout);
 	}
 	
-	@SmallTest
-	public void testAlignment()
+	public void testSaveChanges()
 	{
-		ViewAsserts.assertRightAligned(mFullName, mDateOfBirth);
-		ViewAsserts.assertRightAligned(mDateOfBirth,mListView);
-		ViewAsserts.assertRightAligned(mListView, mBio);
-		ViewAsserts.assertLeftAligned(mImageView, mBio);
-		ViewAsserts.assertLeftAligned(mFullName, mDateOfBirth);
-		ViewAsserts.assertLeftAligned(mDateOfBirth, mListView);
-	}
-	
-	@SmallTest
-	public void testAddDataToDatabase()
-	{
-		mActivity.deleteDatabase(DATABASE_NAME);
-		
-		mActivity = getActivity();
+		mActivity.runOnUiThread(new Runnable() {
+		    public void run() {
+		    	
+		    	try {
+			      Thread.sleep(2000);
+			    } catch (InterruptedException e) {
+			      e.printStackTrace();
+			    }
+		    	
+		    	//tests for about tab
+		    	tabs.setCurrentTab(1);
+		    	
+		    	mAboutInfo.setText(testString);
+		    	editData.performClick();
+		    	
+		    	mActivity.finish();
+				mActivity = getActivity(); 
+				assertEquals(testString, ((TextView)mActivity.findViewById(R.id.about_info)).getText());
+				
+		    	// register next activity that need to be monitored.
+				ActivityMonitor activityMonitor = getInstrumentation().addMonitor(EditDataActivity.class.getName(), null, false);
+		    	
+				//tests for info tab
+				tabs.setCurrentTab(0);
+				
+				editData.performClick();
+				
+				try {
+				      Thread.sleep(2000);
+				    } catch (InterruptedException e) {
+				      e.printStackTrace();
+				    }
+				
+				getInstrumentation().waitForIdleSync();
+				final EditDataActivity nextActivity = (EditDataActivity) getInstrumentation().waitForMonitorWithTimeout(activityMonitor, 10);
+				// next activity is opened and captured.
+				assertNotNull(nextActivity);
+				
+				((TextView)nextActivity.findViewById(R.id.editTextName)).setText("Helloman");
+				final Button saveChanges = (Button)nextActivity.findViewById(R.id.buttonSaveChanges);
+				nextActivity.runOnUiThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// register next activity that need to be monitored.
+						ActivityMonitor activityMonitor2 = getInstrumentation().addMonitor(MainActivity.class.getName(), null, false);
+						
+						saveChanges.performClick();
+						nextActivity.onBackPressed();
+						
+						try {
+						      Thread.sleep(2000);
+						    } catch (InterruptedException e) {
+						      e.printStackTrace();
+						    }
+						
+						getInstrumentation().waitForIdleSync();
+						final MainActivity nextActivity2 = (MainActivity) getInstrumentation().waitForMonitorWithTimeout(activityMonitor2, 10);
+						// next activity is opened and captured.
+						assertNotNull(nextActivity2);
+						
+						assertEquals("Helloman", ((TextView)nextActivity2.findViewById(R.id.fullName)).getText().toString().split(" ")[0]);
+					}
+				});
+		    }
+		  });
 	}
 }

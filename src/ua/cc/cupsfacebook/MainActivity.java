@@ -11,6 +11,7 @@ import ua.cc.cupsfacebook.database.Data;
 import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -25,9 +26,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
-import android.widget.Toast;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Session;
 
@@ -42,6 +43,7 @@ public class MainActivity extends Activity {
 	private Button editDataButton;
 	private int currentTab = 1;
 	private TextView about;
+	private Data currentData;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +93,14 @@ public class MainActivity extends Activity {
 				}
 				else if (currentTab==1)
 				{
-					//cos
-					//tworzymy okienko, gdzie mozemy zmienic bio, name, surname i date
+					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
+					i.putExtra("NAME", currentData.getName());
+					i.putExtra("SURNAME", currentData.getSurname());
+					i.putExtra("BIO", currentData.getBio());
+					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
+					i.putExtra("ID", id);
+					startActivity(i);
+					MainActivity.this.finish();
 				}
 			}
 		});
@@ -131,6 +139,7 @@ public class MainActivity extends Activity {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
         
         Data data = helper.findData();
+        currentData = data;
         
         String fullNameString = data.getName()+" "+data.getSurname();
 		fullName.setText(fullNameString);

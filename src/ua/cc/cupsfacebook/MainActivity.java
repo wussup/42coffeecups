@@ -244,6 +244,7 @@ public class MainActivity extends Activity {
         /*spec=tabs.newTabSpec("tag3"); 
         spec.setContent(R.id.tab3); 
         spec.setIndicator("Tab3"); 
+<<<<<<< HEAD
         tabs.addTab(spec); */
         tabs.setCurrentTab(0);
 	}

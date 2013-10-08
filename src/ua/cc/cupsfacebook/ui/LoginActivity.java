@@ -1,6 +1,7 @@
 package ua.cc.cupsfacebook.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ua.cc.cupsfacebook.MainActivity;
 import ua.cc.cupsfacebook.R;
@@ -22,6 +23,7 @@ import android.view.View;
 
 import com.facebook.LoggingBehavior;
 import com.facebook.Request;
+import com.facebook.Request.GraphUserListCallback;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -79,8 +81,13 @@ public class LoginActivity extends FragmentActivity  {
             }
             Session.setActiveSession(session);
             if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED)) {
-                session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
+            	
+            	ArrayList<String> permissions = new ArrayList<String>();
+        		permissions.add("user_friends");
+        		
+                session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback).setPermissions(permissions));
             }
+            
         }
         else
         {
@@ -140,7 +147,7 @@ public class LoginActivity extends FragmentActivity  {
 	    Request request = Request.newMeRequest(session, 
 	            new Request.GraphUserCallback() {
 	        @Override
-	        public void onCompleted(GraphUser user, Response response) {
+	        public void onCompleted(final GraphUser user, Response response) {
 	            // If the response is successful
 	            if (session == Session.getActiveSession()) {
 	                if (user != null) {
@@ -148,15 +155,35 @@ public class LoginActivity extends FragmentActivity  {
 	                    // view that in turn displays the profile picture.
 	                	
 	                    // Set the Textview's text to the user's name.
-	                	
-	                	addDataToDatabase(user);
-	                	
-	                	addDataToDatabase();
-	                	
-	                	dialog.dismiss();
-	                	
-	                	if (isNetworkAvailable())
-	                		startMainActivity();
+	                	/*
+	                	ArrayList<String> permissions = new ArrayList<String>();
+	            		permissions.add("read_friendlists");
+	            		session.requestNewReadPermissions(new NewPermissionsRequest(LoginActivity.this, permissions));
+	                	*/
+	                	Request friendsRequest = Request.newMyFriendsRequest(session, new GraphUserListCallback() {
+							
+							@Override
+							public void onCompleted(List<GraphUser> users, Response response) {
+								
+								if (session == Session.getActiveSession()) {
+									addDataToDatabase(user, users);
+				                	
+				                	addDataToDatabase();
+				                	
+				                	if (isNetworkAvailable())
+				                		startMainActivity();
+								}
+								if (response.getError() != null) {
+					                Log.e(TAG, response.getError().getErrorMessage());
+					            }
+								dialog.dismiss();
+							}
+						});
+	                	Bundle params = new Bundle();
+	                    params.putString("fields", "id, name");
+	                    friendsRequest.setParameters(params);
+	                    
+	                	friendsRequest.executeAsync();
 	                }
 	            }
 	            if (response.getError() != null) {
@@ -167,12 +194,15 @@ public class LoginActivity extends FragmentActivity  {
 	    request.executeAsync();
 	}
 	
-	private void addDataToDatabase(GraphUser user) {
+	private void addDataToDatabase(GraphUser user, List<GraphUser> friends) {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
 		
 		final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 1; i <= 10; ++i) {
-          list.add("Contact"+i);
+        for (GraphUser friend: friends) {
+          //list.add("Contact"+i);
+        	Log.i(TAG, friend.toString());
+        	
+        	list.add(friend.getProperty("name").toString()+";"+friend.getProperty("id"));
         }
 		
         Data data = new Data(user.getFirstName(), user.getLastName(), "Homepage: " + user.getLink(), user.getBirthday(), user.getId(), list, "");
@@ -239,7 +269,11 @@ public class LoginActivity extends FragmentActivity  {
     private void onClickLogin() {
         Session session = Session.getActiveSession();
         if (!session.isOpened() && !session.isClosed()) {
-            session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
+        	
+        	ArrayList<String> permissions = new ArrayList<String>();
+    		permissions.add("user_friends");
+        	
+            session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback).setPermissions(permissions));
         } else {
             Session.openActiveSession(this, true, statusCallback);
         }

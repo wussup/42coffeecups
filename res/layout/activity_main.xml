@@ -68,18 +68,6 @@
                         android:layout_toRightOf="@+id/imageView"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                    <ListView
-                        android:id="@+id/listView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignBottom="@+id/imageView"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@+id/dateOfBirth"
-                        android:layout_margin="5dp"
-                        android:layout_toRightOf="@+id/imageView" >
-
-                    </ListView>
-
                     <TextView
                         android:id="@+id/bio"
                         android:layout_width="wrap_content"
@@ -159,6 +147,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
+
+                    <ListView
+                        android:id="@+id/listView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp" >
+                    </ListView>
+
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>

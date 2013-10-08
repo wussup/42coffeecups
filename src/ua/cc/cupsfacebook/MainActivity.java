@@ -12,18 +12,30 @@ import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
@@ -45,6 +57,7 @@ public class MainActivity extends Activity {
 	private int currentTab = 1;
 	private TextView about;
 	private Data currentData;
+	private ItemsAdapter itemsAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +119,62 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+		
+		final ListView listView = (ListView)findViewById(R.id.listView);
+		listView.setOnScrollListener(new OnScrollListener() {
+			
+			@Override
+			public void onScrollStateChanged(final AbsListView view, int scrollState) {
+				if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
+				{
+					int first = listView.getFirstVisiblePosition();
+					int last = listView.getLastVisiblePosition();
+					for (int i=first; i<=last; i++)
+					{
+						int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
+						int wantedChild = i - firstPosition;
+						final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
+						
+						final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+							
+							@Override
+							protected Bitmap doInBackground(String... urls) {
+						    	try {
+						         	URL img_value = null;
+						         	 
+									img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
+										
+						         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+						         	return mIcon1;
+						    	} 
+								catch (MalformedURLException e) {
+									e.printStackTrace();
+								}
+						        catch (IOException e) {
+									e.printStackTrace();
+								}
+						    	return null;
+						    }
+						    
+						    protected void onPostExecute(Bitmap result) {
+						    	if (result!=null)
+						    	{
+						    		Drawable drawable = new BitmapDrawable(getResources(), result);
+						    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+						    	}
+						    }
+						   };
+						   task.execute(textView.getContentDescription().toString());
+					}
+				}
+			}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) 
+			{
+			}
+		});
     }
 
 	private void onClickLogout() {
@@ -132,9 +201,12 @@ public class MainActivity extends Activity {
 	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
 
-        final StableArrayAdapter adapter = new StableArrayAdapter(this,
-            android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
+		String[] friends=list.toArray(new String[list.size()]);
+		
+		itemsAdapter = new ItemsAdapter(
+		    MainActivity.this, R.layout.list_item,
+		    friends);
+		listview.setAdapter(itemsAdapter);
 	}
 
 	private void setUpMyListView(ArrayList<String> list) {
@@ -144,12 +216,100 @@ public class MainActivity extends Activity {
             android.R.layout.simple_list_item_1, list);
         listview.setAdapter(adapter);
 	}
-	
-	@Override
-	public void onBackPressed() {
-		finish();
-	}
 
+	/**
+	 * The Class ItemsAdapter.
+	 */
+	private class ItemsAdapter extends BaseAdapter {
+		  
+  		/** The items. */
+  		String[] items;
+
+		  /**
+  		 * Instantiates a new items adapter.
+  		 *
+  		 * @param context the context
+  		 * @param textViewResourceId the text view resource id
+  		 * @param items the items
+  		 */
+  		public ItemsAdapter(Context context, int textViewResourceId,
+		    String[] items) {
+		   this.items = items;
+		  }
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		 */
+		@Override
+		  public View getView(final int position, View convertView,
+		    ViewGroup parent) {
+		   final TextView mDescription;
+		   View view = convertView;
+		   if (view == null) {
+		    LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		    view = vi.inflate(R.layout.list_item, null);
+		   }
+		   
+		   mDescription = (TextView) view.findViewById(R.id.desc);
+		   
+		   final String[] nameAndId = items[position].split(";");
+		   
+		   mDescription.setText(nameAndId[0]);
+		   
+		   mDescription.setContentDescription(nameAndId[1]);
+		   
+		   view.setOnClickListener(new OnClickListener() {
+			
+				@Override
+				public void onClick(View v) {
+					startFriendsPage(nameAndId[1]);
+				}
+
+				private void startFriendsPage(String friendId) {
+					final String urlFb = "fb://page/"+friendId;
+			        Intent intent = new Intent(Intent.ACTION_VIEW);
+			        intent.setData(Uri.parse(urlFb));
+
+			        // If Facebook application is installed, use that else launch a browser
+			        final PackageManager packageManager = getPackageManager();
+			        List<ResolveInfo> list =
+			            packageManager.queryIntentActivities(intent,
+			            PackageManager.MATCH_DEFAULT_ONLY);
+			        if (list.size() == 0) {
+			            final String urlBrowser = "https://www.facebook.com/pages/"+friendId;
+			            intent.setData(Uri.parse(urlBrowser));
+			        }
+
+			        startActivity(intent);
+				}
+		   });
+		   
+		   return view;
+		  }
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getCount()
+		 */
+		public int getCount() {
+		   return items.length;
+		  }
+
+		  /* (non-Javadoc)
+  		 * @see android.widget.Adapter#getItem(int)
+  		 */
+  		public Object getItem(int position) {
+		   return position;
+		  }
+
+		  /* (non-Javadoc)
+  		 * @see android.widget.Adapter#getItemId(int)
+  		 */
+  		public long getItemId(int position) {
+		   return position;
+		  }
+		 
+	}
+	
 	private void getDataFromDatabaseAndFillTextViews() {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
         
@@ -232,7 +392,6 @@ public class MainActivity extends Activity {
 	    	if (result!=null)
 	    		user_picture.setImageBitmap(result);
 	     }
-
 	}
 	
 	@Override
@@ -251,14 +410,17 @@ public class MainActivity extends Activity {
 				if (tabId.compareToIgnoreCase("tag1")==0)
 				{
 					editDataButton.setEnabled(true);
-					//editDataButton.setText("Edit Data");
 					currentTab = 1;
 				}
 				else if (tabId.compareTo("tag2")==0)
 				{
-//					editDataButton.setText("Save Info");
 					editDataButton.setEnabled(false);
 					currentTab = 2;
+				}
+				else 
+				{
+					editDataButton.setEnabled(false);
+					currentTab = 3;
 				}
 			}
 		});
@@ -267,15 +429,14 @@ public class MainActivity extends Activity {
         spec.setContent(R.id.tab1); 
         spec.setIndicator("Main"); 
         tabs.addTab(spec);
+        spec=tabs.newTabSpec("tag3"); 
+        spec.setContent(R.id.tab3); 
+        spec.setIndicator("Friends"); 
+        tabs.addTab(spec);
         spec=tabs.newTabSpec("tag2"); 
         spec.setContent(R.id.tab2); 
         spec.setIndicator("About"); 
         tabs.addTab(spec);
-        /*spec=tabs.newTabSpec("tag3"); 
-        spec.setContent(R.id.tab3); 
-        spec.setIndicator("Tab3"); 
-<<<<<<< HEAD
-        tabs.addTab(spec); */
         tabs.setCurrentTab(0);
 	}
 	

@@ -48,15 +48,15 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 	 */
 	public void testAddDataAndFindData() {
 		ArrayList<String> list = new ArrayList<String>();
-		for (int i=1; i<10; i++)
+		for (int i=1; i<=10; i++)
 			list.add("Contact"+i);
 		
-        Data data = new Data("Taras", "Melon", "Was born in...", "05-02-1992", "1", list, "");
+        Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992", "1", list, "");
         
         db.addData(data);
         
         ArrayList<Data> dataList = db.findData();
-        Data fetchedData = dataList.get(0);
+        Data fetchedData = dataList.get(1);
         assertEquals(data.getBio(), fetchedData.getBio());
         assertEquals(data.getDateOfBirth(), fetchedData.getDateOfBirth());
         assertEquals(data.getName(), fetchedData.getName());

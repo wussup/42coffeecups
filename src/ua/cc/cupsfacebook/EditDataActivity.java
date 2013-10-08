@@ -47,6 +47,8 @@ public class EditDataActivity extends Activity {
 		oldStringSurname = extras.getString("SURNAME");
 		oldStringBio = extras.getString("BIO");
 		oldStringDateOfBirth = extras.getString("DATE_OF_BIRTH");
+		if (oldStringDateOfBirth==null)
+			oldStringDateOfBirth="";
 		id = extras.getInt("ID");
 		
 		name.setText(oldStringName);

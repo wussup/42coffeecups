@@ -35,6 +35,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
@@ -57,7 +58,6 @@ public class MainActivity extends Activity {
 	private TextView about;
 	private Data currentData;
 	private ItemsAdapter itemsAdapter;
-	private int first=-1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -120,45 +120,52 @@ public class MainActivity extends Activity {
 			}
 		});
 		
-		/*final ListView listView = (ListView)findViewById(R.id.listView);
+		final ListView listView = (ListView)findViewById(R.id.listView);
 		listView.setOnScrollListener(new OnScrollListener() {
 			
 			@Override
 			public void onScrollStateChanged(final AbsListView view, int scrollState) {
-				if (first!=-1)
+				if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
 				{
-					final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+					int first = listView.getFirstVisiblePosition();
+					int last = listView.getLastVisiblePosition();
+					for (int i=first; i<=last; i++)
+					{
+						int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
+						int wantedChild = i - firstPosition;
+						final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
 						
-						@Override
-						protected Bitmap doInBackground(String... urls) {
-					    	try {
-					         	URL img_value = null;
-					         	 
-								img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
-									
-					         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-					         	return mIcon1;
-					    	} 
-							catch (MalformedURLException e) {
-								e.printStackTrace();
-							}
-					        catch (IOException e) {
-								e.printStackTrace();
-							}
-					    	return null;
-					    }
-					    
-					    protected void onPostExecute(Bitmap result) {
-					    	if (result!=null)
-					    	{
-					    		Drawable drawable = new BitmapDrawable(getResources(), result);
-					    		Log.i(TAG, view.getItemAtPosition(first).toString());
-					    		((TextView)listView.getChildAt(first).findViewById(R.id.desc)).setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-					    		//counter--;
-					    	}
-					    }
-					   };
-					   task.execute("1");
+						final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+							
+							@Override
+							protected Bitmap doInBackground(String... urls) {
+						    	try {
+						         	URL img_value = null;
+						         	 
+									img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
+										
+						         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+						         	return mIcon1;
+						    	} 
+								catch (MalformedURLException e) {
+									e.printStackTrace();
+								}
+						        catch (IOException e) {
+									e.printStackTrace();
+								}
+						    	return null;
+						    }
+						    
+						    protected void onPostExecute(Bitmap result) {
+						    	if (result!=null)
+						    	{
+						    		Drawable drawable = new BitmapDrawable(getResources(), result);
+						    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+						    	}
+						    }
+						   };
+						   task.execute(textView.getContentDescription().toString());
+					}
 				}
 			}
 			
@@ -166,9 +173,8 @@ public class MainActivity extends Activity {
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) 
 			{
-				first = firstVisibleItem;
 			}
-		});*/
+		});
     }
 
 	private void onClickLogout() {
@@ -201,10 +207,6 @@ public class MainActivity extends Activity {
 		    MainActivity.this, R.layout.list_item,
 		    friends);
 		listview.setAdapter(itemsAdapter);
-		
-        /*final StableArrayAdapter adapter = new StableArrayAdapter(this,
-            android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);*/
 	}
 
 	private void setUpMyListView(ArrayList<String> list) {
@@ -214,11 +216,6 @@ public class MainActivity extends Activity {
             android.R.layout.simple_list_item_1, list);
         listview.setAdapter(adapter);
 	}
-	
-	/*@Override
-	public void onBackPressed() {
-		finish();
-	}*/
 
 	/**
 	 * The Class ItemsAdapter.
@@ -259,7 +256,7 @@ public class MainActivity extends Activity {
 		   
 		   mDescription.setText(nameAndId[0]);
 		   
-		   //mDescription.setContentDescription(nameAndId[1]);
+		   mDescription.setContentDescription(nameAndId[1]);
 		   
 		   view.setOnClickListener(new OnClickListener() {
 			
@@ -286,61 +283,6 @@ public class MainActivity extends Activity {
 			        startActivity(intent);
 				}
 		   });
-		   
-		   /*final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
-			
-			@Override
-			protected Bitmap doInBackground(String... urls) {
-		    	try {
-		         	URL img_value = null;
-		         	 
-					img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
-						
-		         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-		         	return mIcon1;
-		    	} 
-				catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-		        catch (IOException e) {
-					e.printStackTrace();
-				}
-		    	return null;
-		    }
-		    
-		    protected void onPostExecute(Bitmap result) {
-		    	if (result!=null)
-		    	{
-		    		Drawable drawable = new BitmapDrawable(getResources(), result);
-		    		mDescription.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-		    		counter--;
-		    	}
-		    }
-		   };
-		   new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				boolean done = false;
-				while (!done)
-				{
-					if (counter<=100)
-					{
-						counter++;
-						task.execute(nameAndId[1]);
-						done = true;
-					}
-					else
-					{
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}).start();*/
 		   
 		   return view;
 		  }
@@ -468,12 +410,10 @@ public class MainActivity extends Activity {
 				if (tabId.compareToIgnoreCase("tag1")==0)
 				{
 					editDataButton.setEnabled(true);
-					//editDataButton.setText("Edit Data");
 					currentTab = 1;
 				}
 				else if (tabId.compareTo("tag2")==0)
 				{
-//					editDataButton.setText("Save Info");
 					editDataButton.setEnabled(false);
 					currentTab = 2;
 				}

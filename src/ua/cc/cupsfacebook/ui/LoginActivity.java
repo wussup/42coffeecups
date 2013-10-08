@@ -111,7 +111,7 @@ public class LoginActivity extends FragmentActivity  {
           list.add("Contact"+i);
         }
 		
-        Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992", "1", list);
+        Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992", "1", list, "");
         
         helper.addData(data);
 	}
@@ -155,11 +155,6 @@ public class LoginActivity extends FragmentActivity  {
 	                    // view that in turn displays the profile picture.
 	                	
 	                    // Set the Textview's text to the user's name.
-	                	/*
-	                	ArrayList<String> permissions = new ArrayList<String>();
-	            		permissions.add("read_friendlists");
-	            		session.requestNewReadPermissions(new NewPermissionsRequest(LoginActivity.this, permissions));
-	                	*/
 	                	Request friendsRequest = Request.newMyFriendsRequest(session, new GraphUserListCallback() {
 							
 							@Override
@@ -199,7 +194,6 @@ public class LoginActivity extends FragmentActivity  {
 		
 		final ArrayList<String> list = new ArrayList<String>();
         for (GraphUser friend: friends) {
-          //list.add("Contact"+i);
         	Log.i(TAG, friend.toString());
         	
         	list.add(friend.getProperty("name").toString()+";"+friend.getProperty("id"));

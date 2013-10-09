@@ -97,41 +97,48 @@ public class MainActivity extends Activity {
 					int first = listView.getFirstVisiblePosition();
 					int last = listView.getLastVisiblePosition();
 					for (int i=first; i<=last; i++)
-					{
-						int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
-						int wantedChild = i - firstPosition;
-						final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
+					{ 
+						final int num = i;
 						
-						final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+						if (itemsAdapter.items[num].getDrawable()==null)
+						{
+						
+							int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
+							int wantedChild = i - firstPosition;
+							final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
 							
-							@Override
-							protected Bitmap doInBackground(String... urls) {
-						    	try {
-						         	URL img_value = null;
-						         	 
-									img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
-										
-						         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-						         	return mIcon1;
-						    	} 
-								catch (MalformedURLException e) {
-									e.printStackTrace();
-								}
-						        catch (IOException e) {
-									e.printStackTrace();
-								}
-						    	return null;
-						    }
-						    
-						    protected void onPostExecute(Bitmap result) {
-						    	if (result!=null)
-						    	{
-						    		Drawable drawable = new BitmapDrawable(getResources(), result);
-						    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-						    	}
-						    }
-						   };
-						   task.execute(textView.getContentDescription().toString());
+							final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+								
+								@Override
+								protected Bitmap doInBackground(String... urls) {
+							    	try {
+							         	URL img_value = null;
+							         	 
+										img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
+											
+							         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+							         	return mIcon1;
+							    	} 
+									catch (MalformedURLException e) {
+										e.printStackTrace();
+									}
+							        catch (IOException e) {
+										e.printStackTrace();
+									}
+							    	return null;
+							    }
+							    
+							    protected void onPostExecute(Bitmap result) {
+							    	if (result!=null)
+							    	{
+							    		Drawable drawable = new BitmapDrawable(getResources(), result);
+							    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+							    		itemsAdapter.items[num].setDrawable(drawable);
+							    	}
+							    }
+							   };
+							   task.execute(textView.getContentDescription().toString());
+						}
 					}
 				}
 			}
@@ -228,6 +235,7 @@ public class MainActivity extends Activity {
 		private String name;
 		private int priority;
 		private String id;
+		private Drawable drawable = null;
 		
 		public Friend(String name, int priority, String id) {
 			this.name = name;
@@ -245,6 +253,12 @@ public class MainActivity extends Activity {
 		}
 		public void setPriority(int priority) {
 			this.priority = priority;
+		}
+		public Drawable getDrawable() {
+			return drawable;
+		}
+		public void setDrawable(Drawable drawable) {
+			this.drawable = drawable;
 		}
 	}
 	
@@ -344,6 +358,11 @@ public class MainActivity extends Activity {
 		   mDescription.setText(/*nameAndId[0]*/friend.getName());
 		   
 		   mDescription.setContentDescription(/*nameAndId[1]*/friend.getId());
+		   
+		   if (friend.getDrawable()!=null)
+		   {
+			   mDescription.setCompoundDrawables(friend.getDrawable(), null, null, null);
+		   }
 		   
 		   view.setOnClickListener(new OnClickListener() {
 			

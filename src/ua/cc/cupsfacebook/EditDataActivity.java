@@ -29,7 +29,6 @@ public class EditDataActivity extends Activity {
 	private String oldStringDateOfBirth;
 	private int id;
 	private Calendar myCalendar;
-	//private static final String TAG = "[CupsFacebook]";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ua.cc.cupsfacebook.database.Data;
+import ua.cc.cupsfacebook.database.Friend;
 import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
 import android.app.Activity;
 import android.content.Context;
@@ -46,6 +47,7 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Session;
 
@@ -154,26 +156,7 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				/*if (currentTab==2)
-				{
-					String newAbout = about.getText().toString();
-					if (newAbout.compareTo(oldAbout)!=0)
-					{
-						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
-						
-						if (helper.updateAbout(id, newAbout))
-						{
-							oldAbout = newAbout;
-						
-							Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
-						}
-					}
-					else
-					{
-						Toast.makeText(MainActivity.this, "You did not change data!", Toast.LENGTH_SHORT).show();
-					}
-				}
-				else */if (currentTab==1)
+				if (currentTab==1)
 				{
 					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
 					i.putExtra("NAME", currentData.getName());
@@ -189,7 +172,7 @@ public class MainActivity extends Activity {
 					checkboxesAreVisible=!checkboxesAreVisible;
 					if (!checkboxesAreVisible)
 					{
-						ArrayList<Friend> tmpFriends = new ArrayList<MainActivity.Friend>(Arrays.asList(itemsAdapter.items));
+						ArrayList<Friend> tmpFriends = new ArrayList<Friend>(Arrays.asList(itemsAdapter.items));
 						Collections.sort(tmpFriends, new Comparator<Friend>() {
 
 							@Override
@@ -207,70 +190,23 @@ public class MainActivity extends Activity {
 						itemsAdapter.items = tmpFriends.toArray(new Friend[tmpFriends.size()]);
 						
 						editDataButton.setText("Edit Priorities");
+						
+						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
+						if (helper.updateContacts(id, itemsAdapter.items))
+								Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
+						else
+							Toast.makeText(MainActivity.this, "Your data has not been successfully saved!", Toast.LENGTH_SHORT).show();
 					}
 					else
 					{
-						/*int count = listView.getChildCount();
-						for (int i=0; i<count; i++)
-						{
-							CheckBox box = (CheckBox)((LinearLayout)listView.getChildAt(i)).findViewById(R.id.checkBoxPriority);
-							
-							box.setVisibility(View.VISIBLE);
-						}*/
-						
 						editDataButton.setText("Save Priorities");
 					}
 					
-					//int first = listView.getFirstVisiblePosition();
 					itemsAdapter.notifyDataSetChanged();
 				}
 			}
 		});
-		
-		
     }
-
-	private class Friend
-	{
-		private String name;
-		private int priority;
-		private String id;
-		private Drawable drawable = null;
-		
-		public Friend(String name, int priority, String id) {
-			this.name = name;
-			this.priority = priority;
-			this.id = id;
-		}
-		public String getName() {
-			return name;
-		}
-		public int getPriority() {
-			return priority;
-		}
-		public String getId() {
-			return id;
-		}
-		public void setPriority(int priority) {
-			this.priority = priority;
-		}
-		public Drawable getDrawable() {
-			return drawable;
-		}
-		public void setDrawable(Drawable drawable) {
-			this.drawable = drawable;
-		}
-	}
-	
-	/*private String[] getSortedFriendList(ArrayList<Friend> list)
-	{
-		ArrayList<String> tmpList = new ArrayList<String>();
-		for (Friend friend: list)
-		{
-			tmpList.add(friend.getName()+";"+friend.getId());
-		}
-		return tmpList.toArray(new String[tmpList.size()]);
-	}*/
 	
 	private void onClickLogout() {
         Session session = Session.getActiveSession();
@@ -296,12 +232,12 @@ public class MainActivity extends Activity {
 	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
 		
-		ArrayList<Friend> friendList = new ArrayList<MainActivity.Friend>();
+		ArrayList<Friend> friendList = new ArrayList<Friend>();
 		
 		for (String listString: list)
 		{
 			String[] splitted = listString.split(";");
-			friendList.add(new Friend(splitted[0],0, splitted[1]));
+			friendList.add(new Friend(splitted[0], Integer.valueOf(splitted[2]), splitted[1]));
 		}
 		
 		itemsAdapter = new ItemsAdapter(
@@ -353,11 +289,10 @@ public class MainActivity extends Activity {
 		   
 		   mDescription = (TextView) view.findViewById(R.id.desc);
 		   
-		   //final String[] nameAndId = items[position].split(";");
 		   final Friend friend = items[position];
-		   mDescription.setText(/*nameAndId[0]*/friend.getName());
+		   mDescription.setText(friend.getName());
 		   
-		   mDescription.setContentDescription(/*nameAndId[1]*/friend.getId());
+		   mDescription.setContentDescription(friend.getId());
 		   
 		   if (friend.getDrawable()!=null)
 		   {
@@ -368,7 +303,7 @@ public class MainActivity extends Activity {
 			
 				@Override
 				public void onClick(View v) {
-					startFriendsPage(/*nameAndId[1]*/friend.getId());
+					startFriendsPage(friend.getId());
 				}
 
 				private void startFriendsPage(String friendId) {
@@ -399,11 +334,14 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				//box.setChecked(isChecked);
-				if (isChecked)
-					friend.setPriority(1);
-				else
-					friend.setPriority(0);
+				if (box.isPressed())
+				{
+					Log.i(TAG, friend.getName());
+					if (friend.getPriority()==1 && !isChecked)
+						friend.setPriority(0);
+					else if (friend.getPriority()==0 && isChecked)
+						friend.setPriority(1);
+				}
 			}
 		});
 		   if (checkboxesAreVisible)
@@ -412,35 +350,6 @@ public class MainActivity extends Activity {
 		   {
 			   box.setVisibility(View.INVISIBLE);
 		   }
-		   
-		   /*int count = listView.getChildCount();
-			ArrayList<Friend> tmpFriends = new ArrayList<MainActivity.Friend>();
-			for (int i=0; i<count; i++)
-			{
-				LinearLayout layout = (LinearLayout)listView.getChildAt(i);
-				TextView textView = (TextView)layout.findViewById(R.id.desc);
-				CheckBox box = (CheckBox)layout.findViewById(R.id.checkBoxPriority);
-				
-				tmpFriends.add(new Friend(textView.getText().toString(), box.isChecked() ? 1:0, textView.getContentDescription().toString()));
-				
-				box.setVisibility(View.INVISIBLE);
-			}
-			
-			Collections.sort(tmpFriends, new Comparator<Friend>() {
-
-				@Override
-				public int compare(Friend lhs, Friend rhs) {
-					if (rhs.getPriority()>lhs.getPriority())
-						return 1;
-					else if (rhs.getPriority()<lhs.getPriority())
-						return -1;
-					else
-						return 0;
-				}
-				
-			});
-			
-			itemsAdapter.items = getSortedFriendList(tmpFriends); */
 		   
 		   return view;
 		  }
@@ -456,14 +365,14 @@ public class MainActivity extends Activity {
   		 * @see android.widget.Adapter#getItem(int)
   		 */
   		public Object getItem(int position) {
-		   return position;
+		   return items[position];
 		  }
 
 		  /* (non-Javadoc)
   		 * @see android.widget.Adapter#getItemId(int)
   		 */
   		public long getItemId(int position) {
-		   return position;
+		   return Long.valueOf(items[position].getId());
 		  }
 		 
 	}
@@ -568,6 +477,7 @@ public class MainActivity extends Activity {
 				if (tabId.compareToIgnoreCase("tag1")==0)
 				{
 					editDataButton.setEnabled(true);
+					editDataButton.setText("Edit Data");
 					currentTab = 1;
 				}
 				else if (tabId.compareTo("tag2")==0)

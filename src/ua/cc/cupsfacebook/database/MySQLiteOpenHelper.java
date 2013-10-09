@@ -247,5 +247,30 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		}
 		return true;
 	}
+
+	public boolean updateContacts(int id, Friend[] items) {
+		try {
+			SQLiteDatabase db = this.getWritableDatabase();
+			
+			ArrayList<String> contacts = new ArrayList<String>();
+			for (int i=0; i<items.length; i++)
+			{
+				Friend friend = items[i];
+				contacts.add(friend.getName()+";"+friend.getId()+";"+friend.getPriority());
+			}
+			
+			ContentValues cv = new ContentValues();
+			cv.put(COLUMN_CONTACTS, arrayListToByteArray(contacts));
+			db.update(TABLE_PRODUCTS, cv, COLUMN_ID+"=?", new String[]{Integer.toString(id)});
+			
+		    db.close();
+		}
+		catch (SQLiteException ex)
+		{
+			Log.e(TAG, ex.getMessage());
+			return false;
+		}
+		return true;
+	}
 	
 }

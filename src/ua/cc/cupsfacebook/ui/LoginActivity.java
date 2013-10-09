@@ -196,7 +196,7 @@ public class LoginActivity extends FragmentActivity  {
         for (GraphUser friend: friends) {
         	Log.i(TAG, friend.toString());
         	
-        	list.add(friend.getProperty("name").toString()+";"+friend.getProperty("id"));
+        	list.add(friend.getProperty("name").toString()+";"+friend.getProperty("id")+";0");
         }
 		
         Data data = new Data(user.getFirstName(), user.getLastName(), "Homepage: " + user.getLink(), user.getBirthday(), user.getId(), list, "");

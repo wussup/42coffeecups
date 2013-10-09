@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
 import ua.cc.cupsfacebook.database.Data;
+import ua.cc.cupsfacebook.database.Friend;
 import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
 import android.app.Activity;
 import android.content.Context;
@@ -34,6 +38,9 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -51,13 +58,12 @@ public class MainActivity extends Activity {
 	private final static String TAG = "[CupsFacebook]";
 	private TextView fullName;
 	private TextView myFullName;
-	private String oldAbout = "";
 	private int id = -1;
 	private Button editDataButton;
 	private int currentTab = 1;
-	private TextView about;
 	private Data currentData;
 	private ItemsAdapter itemsAdapter;
+	private boolean checkboxesAreVisible = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,43 +89,6 @@ public class MainActivity extends Activity {
 			}
 		});
 		
-		findViewById(R.id.editDataButton).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (currentTab==2)
-				{
-					String newAbout = about.getText().toString();
-					if (newAbout.compareTo(oldAbout)!=0)
-					{
-						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
-						
-						if (helper.updateAbout(id, newAbout))
-						{
-							oldAbout = newAbout;
-						
-							Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
-						}
-					}
-					else
-					{
-						Toast.makeText(MainActivity.this, "You did not change data!", Toast.LENGTH_SHORT).show();
-					}
-				}
-				else if (currentTab==1)
-				{
-					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
-					i.putExtra("NAME", currentData.getName());
-					i.putExtra("SURNAME", currentData.getSurname());
-					i.putExtra("BIO", currentData.getBio());
-					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
-					i.putExtra("ID", id);
-					startActivity(i);
-					MainActivity.this.finish();
-				}
-			}
-		});
-		
 		final ListView listView = (ListView)findViewById(R.id.listView);
 		listView.setOnScrollListener(new OnScrollListener() {
 			
@@ -130,41 +99,48 @@ public class MainActivity extends Activity {
 					int first = listView.getFirstVisiblePosition();
 					int last = listView.getLastVisiblePosition();
 					for (int i=first; i<=last; i++)
-					{
-						int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
-						int wantedChild = i - firstPosition;
-						final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
+					{ 
+						final int num = i;
 						
-						final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+						if (itemsAdapter.items[num].getDrawable()==null)
+						{
+						
+							int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
+							int wantedChild = i - firstPosition;
+							final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
 							
-							@Override
-							protected Bitmap doInBackground(String... urls) {
-						    	try {
-						         	URL img_value = null;
-						         	 
-									img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
-										
-						         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-						         	return mIcon1;
-						    	} 
-								catch (MalformedURLException e) {
-									e.printStackTrace();
-								}
-						        catch (IOException e) {
-									e.printStackTrace();
-								}
-						    	return null;
-						    }
-						    
-						    protected void onPostExecute(Bitmap result) {
-						    	if (result!=null)
-						    	{
-						    		Drawable drawable = new BitmapDrawable(getResources(), result);
-						    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-						    	}
-						    }
-						   };
-						   task.execute(textView.getContentDescription().toString());
+							final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
+								
+								@Override
+								protected Bitmap doInBackground(String... urls) {
+							    	try {
+							         	URL img_value = null;
+							         	 
+										img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
+											
+							         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+							         	return mIcon1;
+							    	} 
+									catch (MalformedURLException e) {
+										e.printStackTrace();
+									}
+							        catch (IOException e) {
+										e.printStackTrace();
+									}
+							    	return null;
+							    }
+							    
+							    protected void onPostExecute(Bitmap result) {
+							    	if (result!=null)
+							    	{
+							    		Drawable drawable = new BitmapDrawable(getResources(), result);
+							    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+							    		itemsAdapter.items[num].setDrawable(drawable);
+							    	}
+							    }
+							   };
+							   task.execute(textView.getContentDescription().toString());
+						}
 					}
 				}
 			}
@@ -175,8 +151,63 @@ public class MainActivity extends Activity {
 			{
 			}
 		});
-    }
+		
+		findViewById(R.id.editDataButton).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (currentTab==1)
+				{
+					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
+					i.putExtra("NAME", currentData.getName());
+					i.putExtra("SURNAME", currentData.getSurname());
+					i.putExtra("BIO", currentData.getBio());
+					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
+					i.putExtra("ID", id);
+					startActivity(i);
+					MainActivity.this.finish();
+				}
+				else if (currentTab==3)
+				{
+					checkboxesAreVisible=!checkboxesAreVisible;
+					if (!checkboxesAreVisible)
+					{
+						ArrayList<Friend> tmpFriends = new ArrayList<Friend>(Arrays.asList(itemsAdapter.items));
+						Collections.sort(tmpFriends, new Comparator<Friend>() {
 
+							@Override
+							public int compare(Friend lhs, Friend rhs) {
+								if (rhs.getPriority()>lhs.getPriority())
+									return 1;
+								else if (rhs.getPriority()<lhs.getPriority())
+									return -1;
+								else
+									return 0;
+							}
+							
+						});
+						
+						itemsAdapter.items = tmpFriends.toArray(new Friend[tmpFriends.size()]);
+						
+						editDataButton.setText("Edit Priorities");
+						
+						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
+						if (helper.updateContacts(id, itemsAdapter.items))
+								Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
+						else
+							Toast.makeText(MainActivity.this, "Your data has not been successfully saved!", Toast.LENGTH_SHORT).show();
+					}
+					else
+					{
+						editDataButton.setText("Save Priorities");
+					}
+					
+					itemsAdapter.notifyDataSetChanged();
+				}
+			}
+		});
+    }
+	
 	private void onClickLogout() {
         Session session = Session.getActiveSession();
         if (!session.isClosed()) {
@@ -200,12 +231,18 @@ public class MainActivity extends Activity {
 
 	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
-
-		String[] friends=list.toArray(new String[list.size()]);
+		
+		ArrayList<Friend> friendList = new ArrayList<Friend>();
+		
+		for (String listString: list)
+		{
+			String[] splitted = listString.split(";");
+			friendList.add(new Friend(splitted[0], Integer.valueOf(splitted[2]), splitted[1]));
+		}
 		
 		itemsAdapter = new ItemsAdapter(
 		    MainActivity.this, R.layout.list_item,
-		    friends);
+		    friendList.toArray(new Friend[friendList.size()]));
 		listview.setAdapter(itemsAdapter);
 	}
 
@@ -223,7 +260,7 @@ public class MainActivity extends Activity {
 	private class ItemsAdapter extends BaseAdapter {
 		  
   		/** The items. */
-  		String[] items;
+  		Friend[] items;
 
 		  /**
   		 * Instantiates a new items adapter.
@@ -233,10 +270,10 @@ public class MainActivity extends Activity {
   		 * @param items the items
   		 */
   		public ItemsAdapter(Context context, int textViewResourceId,
-		    String[] items) {
+		    Friend[] items) {
 		   this.items = items;
 		  }
-
+  		
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
@@ -252,17 +289,21 @@ public class MainActivity extends Activity {
 		   
 		   mDescription = (TextView) view.findViewById(R.id.desc);
 		   
-		   final String[] nameAndId = items[position].split(";");
+		   final Friend friend = items[position];
+		   mDescription.setText(friend.getName());
 		   
-		   mDescription.setText(nameAndId[0]);
+		   mDescription.setContentDescription(friend.getId());
 		   
-		   mDescription.setContentDescription(nameAndId[1]);
+		   if (friend.getDrawable()!=null)
+		   {
+			   mDescription.setCompoundDrawables(friend.getDrawable(), null, null, null);
+		   }
 		   
 		   view.setOnClickListener(new OnClickListener() {
 			
 				@Override
 				public void onClick(View v) {
-					startFriendsPage(nameAndId[1]);
+					startFriendsPage(friend.getId());
 				}
 
 				private void startFriendsPage(String friendId) {
@@ -284,6 +325,32 @@ public class MainActivity extends Activity {
 				}
 		   });
 		   
+		   final CheckBox box = (CheckBox) view.findViewById(R.id.checkBoxPriority);
+		   if (friend.getPriority()==0)
+			   box.setChecked(false);
+		   else
+			   box.setChecked(true);
+		   box.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (box.isPressed())
+				{
+					Log.i(TAG, friend.getName());
+					if (friend.getPriority()==1 && !isChecked)
+						friend.setPriority(0);
+					else if (friend.getPriority()==0 && isChecked)
+						friend.setPriority(1);
+				}
+			}
+		});
+		   if (checkboxesAreVisible)
+			   box.setVisibility(View.VISIBLE);
+		   else
+		   {
+			   box.setVisibility(View.INVISIBLE);
+		   }
+		   
 		   return view;
 		  }
 
@@ -298,14 +365,14 @@ public class MainActivity extends Activity {
   		 * @see android.widget.Adapter#getItem(int)
   		 */
   		public Object getItem(int position) {
-		   return position;
+		   return items[position];
 		  }
 
 		  /* (non-Javadoc)
   		 * @see android.widget.Adapter#getItemId(int)
   		 */
   		public long getItemId(int position) {
-		   return position;
+		   return Long.valueOf(items[position].getId());
 		  }
 		 
 	}
@@ -410,6 +477,7 @@ public class MainActivity extends Activity {
 				if (tabId.compareToIgnoreCase("tag1")==0)
 				{
 					editDataButton.setEnabled(true);
+					editDataButton.setText("Edit Data");
 					currentTab = 1;
 				}
 				else if (tabId.compareTo("tag2")==0)
@@ -419,7 +487,11 @@ public class MainActivity extends Activity {
 				}
 				else 
 				{
-					editDataButton.setEnabled(false);
+					editDataButton.setEnabled(true);
+					if (!checkboxesAreVisible)
+						editDataButton.setText("Edit Priorities");
+					else
+						editDataButton.setText("Save Priorities");
 					currentTab = 3;
 				}
 			}

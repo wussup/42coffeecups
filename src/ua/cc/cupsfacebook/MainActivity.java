@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,13 +37,15 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.Session;
 
@@ -51,13 +56,12 @@ public class MainActivity extends Activity {
 	private final static String TAG = "[CupsFacebook]";
 	private TextView fullName;
 	private TextView myFullName;
-	private String oldAbout = "";
 	private int id = -1;
 	private Button editDataButton;
 	private int currentTab = 1;
-	private TextView about;
 	private Data currentData;
 	private ItemsAdapter itemsAdapter;
+	private boolean checkboxesAreVisible = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,43 +84,6 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				onClickLogout();
-			}
-		});
-		
-		findViewById(R.id.editDataButton).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (currentTab==2)
-				{
-					String newAbout = about.getText().toString();
-					if (newAbout.compareTo(oldAbout)!=0)
-					{
-						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
-						
-						if (helper.updateAbout(id, newAbout))
-						{
-							oldAbout = newAbout;
-						
-							Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
-						}
-					}
-					else
-					{
-						Toast.makeText(MainActivity.this, "You did not change data!", Toast.LENGTH_SHORT).show();
-					}
-				}
-				else if (currentTab==1)
-				{
-					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
-					i.putExtra("NAME", currentData.getName());
-					i.putExtra("SURNAME", currentData.getSurname());
-					i.putExtra("BIO", currentData.getBio());
-					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
-					i.putExtra("ID", id);
-					startActivity(i);
-					MainActivity.this.finish();
-				}
 			}
 		});
 		
@@ -175,8 +142,122 @@ public class MainActivity extends Activity {
 			{
 			}
 		});
+		
+		findViewById(R.id.editDataButton).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				/*if (currentTab==2)
+				{
+					String newAbout = about.getText().toString();
+					if (newAbout.compareTo(oldAbout)!=0)
+					{
+						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
+						
+						if (helper.updateAbout(id, newAbout))
+						{
+							oldAbout = newAbout;
+						
+							Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
+						}
+					}
+					else
+					{
+						Toast.makeText(MainActivity.this, "You did not change data!", Toast.LENGTH_SHORT).show();
+					}
+				}
+				else */if (currentTab==1)
+				{
+					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
+					i.putExtra("NAME", currentData.getName());
+					i.putExtra("SURNAME", currentData.getSurname());
+					i.putExtra("BIO", currentData.getBio());
+					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
+					i.putExtra("ID", id);
+					startActivity(i);
+					MainActivity.this.finish();
+				}
+				else if (currentTab==3)
+				{
+					checkboxesAreVisible=!checkboxesAreVisible;
+					if (!checkboxesAreVisible)
+					{
+						ArrayList<Friend> tmpFriends = new ArrayList<MainActivity.Friend>(Arrays.asList(itemsAdapter.items));
+						Collections.sort(tmpFriends, new Comparator<Friend>() {
+
+							@Override
+							public int compare(Friend lhs, Friend rhs) {
+								if (rhs.getPriority()>lhs.getPriority())
+									return 1;
+								else if (rhs.getPriority()<lhs.getPriority())
+									return -1;
+								else
+									return 0;
+							}
+							
+						});
+						
+						itemsAdapter.items = tmpFriends.toArray(new Friend[tmpFriends.size()]);
+						
+						editDataButton.setText("Edit Priorities");
+					}
+					else
+					{
+						/*int count = listView.getChildCount();
+						for (int i=0; i<count; i++)
+						{
+							CheckBox box = (CheckBox)((LinearLayout)listView.getChildAt(i)).findViewById(R.id.checkBoxPriority);
+							
+							box.setVisibility(View.VISIBLE);
+						}*/
+						
+						editDataButton.setText("Save Priorities");
+					}
+					
+					//int first = listView.getFirstVisiblePosition();
+					itemsAdapter.notifyDataSetChanged();
+				}
+			}
+		});
+		
+		
     }
 
+	private class Friend
+	{
+		private String name;
+		private int priority;
+		private String id;
+		
+		public Friend(String name, int priority, String id) {
+			this.name = name;
+			this.priority = priority;
+			this.id = id;
+		}
+		public String getName() {
+			return name;
+		}
+		public int getPriority() {
+			return priority;
+		}
+		public String getId() {
+			return id;
+		}
+		public void setPriority(int priority) {
+			this.priority = priority;
+		}
+	}
+	
+	/*private String[] getSortedFriendList(ArrayList<Friend> list)
+	{
+		ArrayList<String> tmpList = new ArrayList<String>();
+		for (Friend friend: list)
+		{
+			tmpList.add(friend.getName()+";"+friend.getId());
+		}
+		return tmpList.toArray(new String[tmpList.size()]);
+	}*/
+	
 	private void onClickLogout() {
         Session session = Session.getActiveSession();
         if (!session.isClosed()) {
@@ -200,12 +281,18 @@ public class MainActivity extends Activity {
 
 	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
-
-		String[] friends=list.toArray(new String[list.size()]);
+		
+		ArrayList<Friend> friendList = new ArrayList<MainActivity.Friend>();
+		
+		for (String listString: list)
+		{
+			String[] splitted = listString.split(";");
+			friendList.add(new Friend(splitted[0],0, splitted[1]));
+		}
 		
 		itemsAdapter = new ItemsAdapter(
 		    MainActivity.this, R.layout.list_item,
-		    friends);
+		    friendList.toArray(new Friend[friendList.size()]));
 		listview.setAdapter(itemsAdapter);
 	}
 
@@ -223,7 +310,7 @@ public class MainActivity extends Activity {
 	private class ItemsAdapter extends BaseAdapter {
 		  
   		/** The items. */
-  		String[] items;
+  		Friend[] items;
 
 		  /**
   		 * Instantiates a new items adapter.
@@ -233,10 +320,10 @@ public class MainActivity extends Activity {
   		 * @param items the items
   		 */
   		public ItemsAdapter(Context context, int textViewResourceId,
-		    String[] items) {
+		    Friend[] items) {
 		   this.items = items;
 		  }
-
+  		
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
@@ -252,17 +339,17 @@ public class MainActivity extends Activity {
 		   
 		   mDescription = (TextView) view.findViewById(R.id.desc);
 		   
-		   final String[] nameAndId = items[position].split(";");
+		   //final String[] nameAndId = items[position].split(";");
+		   final Friend friend = items[position];
+		   mDescription.setText(/*nameAndId[0]*/friend.getName());
 		   
-		   mDescription.setText(nameAndId[0]);
-		   
-		   mDescription.setContentDescription(nameAndId[1]);
+		   mDescription.setContentDescription(/*nameAndId[1]*/friend.getId());
 		   
 		   view.setOnClickListener(new OnClickListener() {
 			
 				@Override
 				public void onClick(View v) {
-					startFriendsPage(nameAndId[1]);
+					startFriendsPage(/*nameAndId[1]*/friend.getId());
 				}
 
 				private void startFriendsPage(String friendId) {
@@ -283,6 +370,58 @@ public class MainActivity extends Activity {
 			        startActivity(intent);
 				}
 		   });
+		   
+		   final CheckBox box = (CheckBox) view.findViewById(R.id.checkBoxPriority);
+		   if (friend.getPriority()==0)
+			   box.setChecked(false);
+		   else
+			   box.setChecked(true);
+		   box.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				//box.setChecked(isChecked);
+				if (isChecked)
+					friend.setPriority(1);
+				else
+					friend.setPriority(0);
+			}
+		});
+		   if (checkboxesAreVisible)
+			   box.setVisibility(View.VISIBLE);
+		   else
+		   {
+			   box.setVisibility(View.INVISIBLE);
+		   }
+		   
+		   /*int count = listView.getChildCount();
+			ArrayList<Friend> tmpFriends = new ArrayList<MainActivity.Friend>();
+			for (int i=0; i<count; i++)
+			{
+				LinearLayout layout = (LinearLayout)listView.getChildAt(i);
+				TextView textView = (TextView)layout.findViewById(R.id.desc);
+				CheckBox box = (CheckBox)layout.findViewById(R.id.checkBoxPriority);
+				
+				tmpFriends.add(new Friend(textView.getText().toString(), box.isChecked() ? 1:0, textView.getContentDescription().toString()));
+				
+				box.setVisibility(View.INVISIBLE);
+			}
+			
+			Collections.sort(tmpFriends, new Comparator<Friend>() {
+
+				@Override
+				public int compare(Friend lhs, Friend rhs) {
+					if (rhs.getPriority()>lhs.getPriority())
+						return 1;
+					else if (rhs.getPriority()<lhs.getPriority())
+						return -1;
+					else
+						return 0;
+				}
+				
+			});
+			
+			itemsAdapter.items = getSortedFriendList(tmpFriends); */
 		   
 		   return view;
 		  }
@@ -419,7 +558,11 @@ public class MainActivity extends Activity {
 				}
 				else 
 				{
-					editDataButton.setEnabled(false);
+					editDataButton.setEnabled(true);
+					if (!checkboxesAreVisible)
+						editDataButton.setText("Edit Priorities");
+					else
+						editDataButton.setText("Save Priorities");
 					currentTab = 3;
 				}
 			}

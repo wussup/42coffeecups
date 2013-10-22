@@ -28,11 +28,12 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 	private TextView mBio;
 	private TextView mDateOfBirth;
 	private TextView mFullName;
-	private ListView mListView;
+	private ListView mListViewMine;
 	private ImageView mImageView;
 	private Button editData;
 	private Button logout;
 	private TabHost tabs;
+	private ListView listView;
 	
 	/**
 	 * @param name
@@ -58,8 +59,8 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		assertNotNull(mDateOfBirth);
 		mFullName = (TextView) mActivity.findViewById(R.id.fullName);
 		assertNotNull(mFullName);
-		mListView = (ListView) mActivity.findViewById(R.id.listView);
-		assertNotNull(mListView);
+		mListViewMine = (ListView) mActivity.findViewById(R.id.listViewMine);
+		assertNotNull(mListViewMine);
 		mImageView = (ImageView) mActivity.findViewById(R.id.imageView);
 		assertNotNull(mImageView);
 		editData = (Button) mActivity.findViewById(R.id.editDataButton);
@@ -68,6 +69,8 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		assertNotNull(logout);
 		tabs = (TabHost)mActivity.findViewById(R.id.tabhost); 
 		assertNotNull(tabs);
+		listView = (ListView)mActivity.findViewById(R.id.listView);
+		assertNotNull(listView);
 	}
 
 	/* (non-Javadoc)
@@ -76,7 +79,7 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
-
+	
 	@SmallTest
 	public void testFieldsOnScreen()
 	{
@@ -86,12 +89,13 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		ViewAsserts.assertOnScreen(origin, mBio);
 		ViewAsserts.assertOnScreen(origin, mDateOfBirth);
 		ViewAsserts.assertOnScreen(origin, mFullName);
-		ViewAsserts.assertOnScreen(origin, mListView);
+		ViewAsserts.assertOnScreen(origin, mListViewMine);
 		ViewAsserts.assertOnScreen(origin, mImageView);
 		ViewAsserts.assertOnScreen(origin, editData);
 		ViewAsserts.assertOnScreen(origin, logout);
 	}
 	
+	@SmallTest
 	public void testSaveChanges()
 	{
 		mActivity.runOnUiThread(new Runnable() {
@@ -107,7 +111,9 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 				ActivityMonitor activityMonitor = getInstrumentation().addMonitor(EditDataActivity.class.getName(), null, false);
 		    	
 				//tests for info tab
-				tabs.setCurrentTab(0);
+				//tabs.setCurrentTab(0);
+				
+				//mActivity.setCurrentTab(1);
 				
 				editData.performClick();
 				
@@ -151,4 +157,20 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		    }
 		  });
 	}
+	
+	@SmallTest
+	public void testNotVisibleCheckboxes()
+	{
+		int size = listView.getAdapter().getCount();
+		
+		for (int i=0; i<size; i++)
+			assertEquals(View.INVISIBLE, listView.getAdapter().getView(i, null, null).findViewById(R.id.checkBoxPriority).getVisibility());
+	}
+	
+	public void testClickingOnListItem()
+    {
+            int mActivePosition = 1;
+            
+            assertTrue(listView.getAdapter().getView(mActivePosition, null, null).performClick());
+    }
 }

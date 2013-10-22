@@ -391,7 +391,7 @@ public class MainActivity extends Activity {
 	    		user_picture.setImageBitmap(result);
 	     }
 	}
-
+	
 	private void setUpTabWidget() {
 		TabHost tabs=(TabHost)findViewById(R.id.tabhost); 
 		tabs.setOnTabChangedListener(new OnTabChangeListener() {

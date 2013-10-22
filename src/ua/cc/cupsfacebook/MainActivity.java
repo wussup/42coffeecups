@@ -511,5 +511,9 @@ public class MainActivity extends Activity {
         tabs.addTab(spec);
         tabs.setCurrentTab(0);
 	}
+
+	public void setCurrentTab(int currentTab) {
+		this.currentTab = currentTab;
+	}
 	
 }

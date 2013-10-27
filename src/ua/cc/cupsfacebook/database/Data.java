@@ -1,32 +1,34 @@
 package ua.cc.cupsfacebook.database;
 
+import java.util.ArrayList;
+
 public class Data {
 	private int id;
 	private String name;
 	private String surname;
 	private String bio;
 	private String dateOfBirth;
-	private String userId;
-
+	private ArrayList<String> contacts;
+	
 	public Data() {
 	}
 
 	public Data(int id, String name, String surname, String bio,
-			String dateOfBirth, String userId) {
+			String dateOfBirth, ArrayList<String> contacts) {
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
 		this.bio = bio;
 		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
+		this.contacts = contacts;
 	}
 
-	public Data(String name, String surname, String bio, String dateOfBirth, String userId) {
+	public Data(String name, String surname, String bio, String dateOfBirth, ArrayList<String> contacts) {
 		this.name = name;
 		this.surname = surname;
 		this.bio = bio;
 		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
+		this.contacts = contacts;
 	}
 
 	public int getId() {
@@ -69,16 +71,12 @@ public class Data {
 		this.dateOfBirth = dateOfBirth;
 	}
 
-	public String getUserId() {
-		return userId;
+	public ArrayList<String> getContacts() {
+		return contacts;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setContacts(ArrayList<String> contacts) {
+		this.contacts = contacts;
 	}
 	
-	public String toString()
-	{
-		return id+";"+bio+";"+dateOfBirth+";"+name+";"+surname+";"+userId;
-	}
 }

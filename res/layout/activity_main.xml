@@ -43,7 +43,8 @@
                         android:layout_width="128dp"
                         android:layout_height="128dp"
                         android:layout_margin="5dp"
-                        android:contentDescription="@string/hello_world" />
+                        android:contentDescription="@string/hello_world"
+                        android:src="@drawable/photo" />
 
                     <TextView
                         android:id="@+id/bio"
@@ -108,13 +109,5 @@
         </LinearLayout>
 
     </TabHost>
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tabhost"
-        android:layout_alignParentBottom="true"
-        android:text="@string/logout_button" />
     
 </RelativeLayout>

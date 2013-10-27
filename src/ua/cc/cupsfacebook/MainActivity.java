@@ -51,11 +51,33 @@ import android.widget.Toast;
 
 import com.facebook.Session;
 
+/**
+ * MainActivity represents fully functionality of the app. 
+ * 
+ * Task:
+ * Create a tabbed android project that would present your name, surname, date of birth, bio,
+ * contacts and photo (128x128 with a towel ;) on the main page. The data should
+ * be stored in a sqlite database, created and filled automatically on the first
+ * launch or when the user data is cleared. 
+ * 
+ * The application should work on Android 2.x and Android 4.x, portrait and landscape. 
+ * 
+ * Store the last built of the application as attached .apk to the ticket before assigning it to the
+ * reviewer. 
+ * 
+ * Place a link to your git repository on Github with the first comment. 
+ * 
+ * And don't forget about tests.
+ * 
+ * @version 1.0 27-10-2013
+ * @author Taras Melon
+ *
+ */
 public class MainActivity extends Activity {
 
-	public final static String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/infoDB.db";
-	private ImageView user_picture;
-	private final static String TAG = "[CupsFacebook]";
+	public static final String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/infoDB.db";
+	private static final String TAG = "[CupsFacebook]";
+	private ImageView mUserPicture;
 	private TextView fullName;
 	private TextView myFullName;
 	private int id = -1;
@@ -64,403 +86,444 @@ public class MainActivity extends Activity {
 	private Data currentData;
 	private ItemsAdapter itemsAdapter;
 	private boolean checkboxesAreVisible = false;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		editDataButton = (Button) findViewById(R.id.editDataButton);
-		user_picture = (ImageView)findViewById(R.id.imageView);
+		mUserPicture = (ImageView) findViewById(R.id.imageView);
 		fullName = (TextView) findViewById(R.id.fullName);
-		
+
 		myFullName = (TextView) findViewById(R.id.fullNameMine);
-		
+
 		if (checkDataBase())
 			getDataFromDatabaseAndFillTextViews();
-		
+
 		setUpTabWidget();
-		
-		findViewById(R.id.logoutButton).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				onClickLogout();
-			}
-		});
-		
-		final ListView listView = (ListView)findViewById(R.id.listView);
+
+		findViewById(R.id.logoutButton).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						onClickLogout();
+					}
+				});
+
+		final ListView listView = (ListView) findViewById(R.id.listView);
 		listView.setOnScrollListener(new OnScrollListener() {
-			
+
 			@Override
-			public void onScrollStateChanged(final AbsListView view, int scrollState) {
-				if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
-				{
+			public void onScrollStateChanged(final AbsListView view,
+					int scrollState) {
+				if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
 					int first = listView.getFirstVisiblePosition();
 					int last = listView.getLastVisiblePosition();
-					for (int i=first; i<=last; i++)
-					{ 
+					for (int i = first; i <= last; i++) {
 						final int num = i;
-						
-						if (itemsAdapter.items[num].getDrawable()==null)
-						{
-						
-							int firstPosition = listView.getFirstVisiblePosition() - listView.getHeaderViewsCount(); // This is the same as child #0
+
+						if (itemsAdapter.items[num].getDrawable() == null) {
+
+							int firstPosition = listView
+									.getFirstVisiblePosition()
+									- listView.getHeaderViewsCount(); // This is
+																		// the
+																		// same
+																		// as
+																		// child
+																		// #0
 							int wantedChild = i - firstPosition;
-							final TextView textView = (TextView)((LinearLayout)listView.getChildAt(wantedChild)).findViewById(R.id.desc); 
-							
-							final AsyncTask<String, Void, Bitmap> task =  new AsyncTask<String, Void, Bitmap> () {
-								
+							final TextView textView = (TextView) ((LinearLayout) listView
+									.getChildAt(wantedChild))
+									.findViewById(R.id.desc);
+
+							final AsyncTask<String, Void, Bitmap> task = new AsyncTask<String, Void, Bitmap>() {
+
 								@Override
 								protected Bitmap doInBackground(String... urls) {
-							    	try {
-							         	URL img_value = null;
-							         	 
-										img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=square");
-											
-							         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-							         	return mIcon1;
-							    	} 
-									catch (MalformedURLException e) {
+									try {
+										URL img_value = null;
+
+										img_value = new URL(
+												"http://graph.facebook.com/"
+														+ urls[0]
+														+ "/picture?type=square");
+
+										Bitmap mIcon1 = BitmapFactory
+												.decodeStream(img_value
+														.openConnection()
+														.getInputStream());
+										return mIcon1;
+									} catch (MalformedURLException e) {
+										e.printStackTrace();
+									} catch (IOException e) {
 										e.printStackTrace();
 									}
-							        catch (IOException e) {
-										e.printStackTrace();
+									return null;
+								}
+
+								protected void onPostExecute(Bitmap result) {
+									if (result != null) {
+										Drawable drawable = new BitmapDrawable(
+												getResources(), result);
+										textView.setCompoundDrawablesWithIntrinsicBounds(
+												drawable, null, null, null);
+										itemsAdapter.items[num]
+												.setDrawable(drawable);
 									}
-							    	return null;
-							    }
-							    
-							    protected void onPostExecute(Bitmap result) {
-							    	if (result!=null)
-							    	{
-							    		Drawable drawable = new BitmapDrawable(getResources(), result);
-							    		textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-							    		itemsAdapter.items[num].setDrawable(drawable);
-							    	}
-							    }
-							   };
-							   task.execute(textView.getContentDescription().toString());
+								}
+							};
+							task.execute(textView.getContentDescription()
+									.toString());
 						}
 					}
 				}
 			}
-			
+
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) 
-			{
+					int visibleItemCount, int totalItemCount) {
 			}
 		});
-		
-		findViewById(R.id.editDataButton).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (currentTab==1)
-				{
-					Intent i = new Intent(MainActivity.this, EditDataActivity.class);
-					i.putExtra("NAME", currentData.getName());
-					i.putExtra("SURNAME", currentData.getSurname());
-					i.putExtra("BIO", currentData.getBio());
-					i.putExtra("DATE_OF_BIRTH", currentData.getDateOfBirth());
-					i.putExtra("ID", id);
-					startActivity(i);
-					MainActivity.this.finish();
-				}
-				else if (currentTab==3)
-				{
-					checkboxesAreVisible=!checkboxesAreVisible;
-					if (!checkboxesAreVisible)
-					{
-						ArrayList<Friend> tmpFriends = new ArrayList<Friend>(Arrays.asList(itemsAdapter.items));
-						Collections.sort(tmpFriends, new Comparator<Friend>() {
 
-							@Override
-							public int compare(Friend lhs, Friend rhs) {
-								if (rhs.getPriority()>lhs.getPriority())
-									return 1;
-								else if (rhs.getPriority()<lhs.getPriority())
-									return -1;
+		findViewById(R.id.editDataButton).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						if (currentTab == 1) {
+							Intent i = new Intent(MainActivity.this,
+									EditDataActivity.class);
+							i.putExtra("NAME", currentData.getName());
+							i.putExtra("SURNAME", currentData.getSurname());
+							i.putExtra("BIO", currentData.getBio());
+							i.putExtra("DATE_OF_BIRTH",
+									currentData.getDateOfBirth());
+							i.putExtra("ID", id);
+							startActivity(i);
+							MainActivity.this.finish();
+						} else if (currentTab == 3) {
+							checkboxesAreVisible = !checkboxesAreVisible;
+							if (!checkboxesAreVisible) {
+								ArrayList<Friend> tmpFriends = new ArrayList<Friend>(
+										Arrays.asList(itemsAdapter.items));
+								Collections.sort(tmpFriends,
+										new Comparator<Friend>() {
+
+											@Override
+											public int compare(Friend lhs,
+													Friend rhs) {
+												if (rhs.getPriority() > lhs
+														.getPriority())
+													return 1;
+												else if (rhs.getPriority() < lhs
+														.getPriority())
+													return -1;
+												else
+													return 0;
+											}
+
+										});
+
+								itemsAdapter.items = tmpFriends
+										.toArray(new Friend[tmpFriends.size()]);
+
+								editDataButton.setText("Edit Priorities");
+
+								MySQLiteOpenHelper helper = new MySQLiteOpenHelper(
+										MainActivity.this, null, null, 1);
+								if (helper.updateContacts(id,
+										itemsAdapter.items))
+									Toast.makeText(
+											MainActivity.this,
+											"Your data has been successfully saved!",
+											Toast.LENGTH_SHORT).show();
 								else
-									return 0;
+									Toast.makeText(
+											MainActivity.this,
+											"Your data has not been successfully saved!",
+											Toast.LENGTH_SHORT).show();
+							} else {
+								editDataButton.setText("Save Priorities");
 							}
-							
-						});
-						
-						itemsAdapter.items = tmpFriends.toArray(new Friend[tmpFriends.size()]);
-						
-						editDataButton.setText("Edit Priorities");
-						
-						MySQLiteOpenHelper helper = new MySQLiteOpenHelper(MainActivity.this, null, null, 1);
-						if (helper.updateContacts(id, itemsAdapter.items))
-								Toast.makeText(MainActivity.this, "Your data has been successfully saved!", Toast.LENGTH_SHORT).show();
-						else
-							Toast.makeText(MainActivity.this, "Your data has not been successfully saved!", Toast.LENGTH_SHORT).show();
+
+							itemsAdapter.notifyDataSetChanged();
+						}
 					}
-					else
-					{
-						editDataButton.setText("Save Priorities");
-					}
-					
-					itemsAdapter.notifyDataSetChanged();
-				}
-			}
-		});
-    }
-	
+				});
+	}
+
 	private void onClickLogout() {
-        Session session = Session.getActiveSession();
-        if (!session.isClosed()) {
-            session.closeAndClearTokenInformation();
-            finish();
-        }
-    }
-	
+		Session session = Session.getActiveSession();
+		if (!session.isClosed()) {
+			session.closeAndClearTokenInformation();
+			finish();
+		}
+	}
+
 	private boolean checkDataBase() {
-	    SQLiteDatabase checkDB = null;
-	    try {
-	        checkDB = SQLiteDatabase.openDatabase(DB_FULL_PATH, null,
-	                SQLiteDatabase.OPEN_READONLY);
-	        checkDB.close();
-	        Log.i(TAG, "Database exists");
-	    } catch (SQLiteException e) {
-	    	Log.i(TAG, "Database doesn't exist yet");
-	    }
-	    return checkDB != null ? true : false;
+		SQLiteDatabase checkDB = null;
+		try {
+			checkDB = SQLiteDatabase.openDatabase(DB_FULL_PATH, null,
+					SQLiteDatabase.OPEN_READONLY);
+			checkDB.close();
+			Log.i(TAG, "Database exists");
+		} catch (SQLiteException e) {
+			Log.i(TAG, "Database doesn't exist yet");
+		}
+		return checkDB != null ? true : false;
 	}
 
 	private void setUpListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listView);
-		
+
 		ArrayList<Friend> friendList = new ArrayList<Friend>();
-		
-		for (String listString: list)
-		{
+
+		for (String listString : list) {
 			String[] splitted = listString.split(";");
-			friendList.add(new Friend(splitted[0], Integer.valueOf(splitted[2]), splitted[1]));
+			friendList.add(new Friend(splitted[0],
+					Integer.valueOf(splitted[2]), splitted[1]));
 		}
-		
-		itemsAdapter = new ItemsAdapter(
-		    MainActivity.this, R.layout.list_item,
-		    friendList.toArray(new Friend[friendList.size()]));
+
+		itemsAdapter = new ItemsAdapter(MainActivity.this, R.layout.list_item,
+				friendList.toArray(new Friend[friendList.size()]));
 		listview.setAdapter(itemsAdapter);
 	}
 
 	private void setUpMyListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listViewMine);
 
-        final StableArrayAdapter adapter = new StableArrayAdapter(this,
-            android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
+		final StableArrayAdapter adapter = new StableArrayAdapter(this,
+				android.R.layout.simple_list_item_1, list);
+		listview.setAdapter(adapter);
 	}
 
 	/**
 	 * The Class ItemsAdapter.
 	 */
 	private class ItemsAdapter extends BaseAdapter {
-		  
-  		/** The items. */
-  		Friend[] items;
 
-		  /**
-  		 * Instantiates a new items adapter.
-  		 *
-  		 * @param context the context
-  		 * @param textViewResourceId the text view resource id
-  		 * @param items the items
-  		 */
-  		public ItemsAdapter(Context context, int textViewResourceId,
-		    Friend[] items) {
-		   this.items = items;
-		  }
-  		
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		/** The items. */
+		Friend[] items;
+
+		/**
+		 * Instantiates a new items adapter.
+		 * 
+		 * @param context
+		 *            the context
+		 * @param textViewResourceId
+		 *            the text view resource id
+		 * @param items
+		 *            the items
+		 */
+		public ItemsAdapter(Context context, int textViewResourceId,
+				Friend[] items) {
+			this.items = items;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getView(int, android.view.View,
+		 * android.view.ViewGroup)
 		 */
 		@Override
-		  public View getView(final int position, View convertView,
-		    ViewGroup parent) {
-		   final TextView mDescription;
-		   View view = convertView;
-		   if (view == null) {
-		    LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		    view = vi.inflate(R.layout.list_item, null);
-		   }
-		   
-		   mDescription = (TextView) view.findViewById(R.id.desc);
-		   
-		   final Friend friend = items[position];
-		   mDescription.setText(friend.getName());
-		   
-		   mDescription.setContentDescription(friend.getId());
-		   
-		   if (friend.getDrawable()!=null)
-		   {
-			   mDescription.setCompoundDrawables(friend.getDrawable(), null, null, null);
-		   }
-		   
-		   view.setOnClickListener(new OnClickListener() {
-			
+		public View getView(final int position, View convertView,
+				ViewGroup parent) {
+			final TextView mDescription;
+			View view = convertView;
+			if (view == null) {
+				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				view = vi.inflate(R.layout.list_item, null);
+			}
+
+			mDescription = (TextView) view.findViewById(R.id.desc);
+
+			final Friend friend = items[position];
+			mDescription.setText(friend.getName());
+
+			mDescription.setContentDescription(friend.getId());
+
+			if (friend.getDrawable() != null) {
+				mDescription.setCompoundDrawables(friend.getDrawable(), null,
+						null, null);
+			}
+
+			view.setOnClickListener(new OnClickListener() {
+
 				@Override
 				public void onClick(View v) {
 					startFriendsPage(friend.getId());
 				}
 
 				private void startFriendsPage(String friendId) {
-					final String urlFb = "fb://page/"+friendId;
-			        Intent intent = new Intent(Intent.ACTION_VIEW);
-			        intent.setData(Uri.parse(urlFb));
+					final String urlFb = "fb://page/" + friendId;
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse(urlFb));
 
-			        // If Facebook application is installed, use that else launch a browser
-			        final PackageManager packageManager = getPackageManager();
-			        List<ResolveInfo> list =
-			            packageManager.queryIntentActivities(intent,
-			            PackageManager.MATCH_DEFAULT_ONLY);
-			        if (list.size() == 0) {
-			            final String urlBrowser = "https://www.facebook.com/pages/"+friendId;
-			            intent.setData(Uri.parse(urlBrowser));
-			        }
+					// If Facebook application is installed, use that else
+					// launch a browser
+					final PackageManager packageManager = getPackageManager();
+					List<ResolveInfo> list = packageManager
+							.queryIntentActivities(intent,
+									PackageManager.MATCH_DEFAULT_ONLY);
+					if (list.size() == 0) {
+						final String urlBrowser = "https://www.facebook.com/pages/"
+								+ friendId;
+						intent.setData(Uri.parse(urlBrowser));
+					}
 
-			        startActivity(intent);
+					startActivity(intent);
 				}
-		   });
-		   
-		   final CheckBox box = (CheckBox) view.findViewById(R.id.checkBoxPriority);
-		   if (friend.getPriority()==0)
-			   box.setChecked(false);
-		   else
-			   box.setChecked(true);
-		   box.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (box.isPressed())
-				{
-					Log.i(TAG, friend.getName());
-					if (friend.getPriority()==1 && !isChecked)
-						friend.setPriority(0);
-					else if (friend.getPriority()==0 && isChecked)
-						friend.setPriority(1);
+			});
+
+			final CheckBox box = (CheckBox) view
+					.findViewById(R.id.checkBoxPriority);
+			if (friend.getPriority() == 0)
+				box.setChecked(false);
+			else
+				box.setChecked(true);
+			box.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView,
+						boolean isChecked) {
+					if (box.isPressed()) {
+						Log.i(TAG, friend.getName());
+						if (friend.getPriority() == 1 && !isChecked)
+							friend.setPriority(0);
+						else if (friend.getPriority() == 0 && isChecked)
+							friend.setPriority(1);
+					}
 				}
+			});
+			if (checkboxesAreVisible)
+				box.setVisibility(View.VISIBLE);
+			else {
+				box.setVisibility(View.INVISIBLE);
 			}
-		});
-		   if (checkboxesAreVisible)
-			   box.setVisibility(View.VISIBLE);
-		   else
-		   {
-			   box.setVisibility(View.INVISIBLE);
-		   }
-		   
-		   return view;
-		  }
 
-		/* (non-Javadoc)
+			return view;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see android.widget.Adapter#getCount()
 		 */
 		public int getCount() {
-		   return items.length;
-		  }
+			return items.length;
+		}
 
-		  /* (non-Javadoc)
-  		 * @see android.widget.Adapter#getItem(int)
-  		 */
-  		public Object getItem(int position) {
-		   return items[position];
-		  }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getItem(int)
+		 */
+		public Object getItem(int position) {
+			return items[position];
+		}
 
-		  /* (non-Javadoc)
-  		 * @see android.widget.Adapter#getItemId(int)
-  		 */
-  		public long getItemId(int position) {
-		   return Long.valueOf(items[position].getId());
-		  }
-		 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getItemId(int)
+		 */
+		public long getItemId(int position) {
+			return Long.valueOf(items[position].getId());
+		}
+
 	}
-	
+
 	private void getDataFromDatabaseAndFillTextViews() {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
-        
-        ArrayList<Data> dataList = helper.findData();
-        
-        Data data = dataList.get(0);
-        
-        currentData = data;
-        
-        String fullNameString = data.getName()+" "+data.getSurname();
+
+		ArrayList<Data> dataList = helper.findData();
+
+		Data data = dataList.get(0);
+
+		currentData = data;
+
+		String fullNameString = data.getName() + " " + data.getSurname();
 		fullName.setText(fullNameString);
-		
+
 		id = data.getId();
-		
-		if (data.getDateOfBirth()!=null)
-			((TextView)findViewById(R.id.dateOfBirth)).setText(data.getDateOfBirth());
+
+		if (data.getDateOfBirth() != null)
+			((TextView) findViewById(R.id.dateOfBirth)).setText(data
+					.getDateOfBirth());
 		else
-			((TextView)findViewById(R.id.dateOfBirth)).setText("Inaccessible");
-		((TextView)findViewById(R.id.bio)).setText(data.getBio());
-		
+			((TextView) findViewById(R.id.dateOfBirth)).setText("Inaccessible");
+		((TextView) findViewById(R.id.bio)).setText(data.getBio());
+
 		setUpListView(data.getContacts());
-		
+
 		new RetreiveFeedTask().execute(data.getUserId());
-		
+
 		data = dataList.get(1);
-        
-        fullNameString = data.getName()+" "+data.getSurname();
+
+		fullNameString = data.getName() + " " + data.getSurname();
 		myFullName.setText(fullNameString);
-		
-		if (data.getDateOfBirth()!=null)
-			((TextView)findViewById(R.id.dateOfBirthMine)).setText(data.getDateOfBirth());
+
+		if (data.getDateOfBirth() != null)
+			((TextView) findViewById(R.id.dateOfBirthMine)).setText(data
+					.getDateOfBirth());
 		else
-			((TextView)findViewById(R.id.dateOfBirthMine)).setText("Inaccessible");
-		((TextView)findViewById(R.id.bioMine)).setText(data.getBio());
-		
+			((TextView) findViewById(R.id.dateOfBirthMine))
+					.setText("Inaccessible");
+		((TextView) findViewById(R.id.bioMine)).setText(data.getBio());
+
 		setUpMyListView(data.getContacts());
 	}
-	
+
 	private class StableArrayAdapter extends ArrayAdapter<String> {
 
-        HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
+		HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
 
-        public StableArrayAdapter(Context context, int textViewResourceId,
-            List<String> objects) {
-          super(context, textViewResourceId, objects);
-          for (int i = 0; i < objects.size(); ++i) {
-            mIdMap.put(objects.get(i), i);
-          }
-        }
+		public StableArrayAdapter(Context context, int textViewResourceId,
+				List<String> objects) {
+			super(context, textViewResourceId, objects);
+			for (int i = 0; i < objects.size(); ++i) {
+				mIdMap.put(objects.get(i), i);
+			}
+		}
 
-        @Override
-        public long getItemId(int position) {
-          String item = getItem(position);
-          return mIdMap.get(item);
-        }
+		@Override
+		public long getItemId(int position) {
+			String item = getItem(position);
+			return mIdMap.get(item);
+		}
 
-      }
-	
+	}
+
 	class RetreiveFeedTask extends AsyncTask<String, Void, Bitmap> {
 
-	    protected Bitmap doInBackground(String... urls) {
-	    	try {
-	         	URL img_value = null;
-	         	 
-				img_value = new URL("http://graph.facebook.com/"+urls[0]+"/picture?type=large");
-					
-	         	Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-	         	return mIcon1;
-	    	} 
-			catch (MalformedURLException e) {
+		protected Bitmap doInBackground(String... urls) {
+			try {
+				URL img_value = null;
+
+				img_value = new URL("http://graph.facebook.com/" + urls[0]
+						+ "/picture?type=large");
+
+				Bitmap mIcon1 = BitmapFactory.decodeStream(img_value
+						.openConnection().getInputStream());
+				return mIcon1;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
-	        catch (IOException e) {
-				e.printStackTrace();
-			}
-	    	return null;
-	    }
-	    
-	    protected void onPostExecute(Bitmap result) {
-	    	if (result!=null)
-	    		user_picture.setImageBitmap(result);
-	     }
+			return null;
+		}
+
+		protected void onPostExecute(Bitmap result) {
+			if (result != null)
+				mUserPicture.setImageBitmap(result);
+		}
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -469,24 +532,19 @@ public class MainActivity extends Activity {
 	}
 
 	private void setUpTabWidget() {
-		TabHost tabs=(TabHost)findViewById(R.id.tabhost); 
+		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
 		tabs.setOnTabChangedListener(new OnTabChangeListener() {
-			
+
 			@Override
 			public void onTabChanged(String tabId) {
-				if (tabId.compareToIgnoreCase("tag1")==0)
-				{
+				if (tabId.compareToIgnoreCase("tag1") == 0) {
 					editDataButton.setEnabled(true);
 					editDataButton.setText("Edit Data");
 					currentTab = 1;
-				}
-				else if (tabId.compareTo("tag2")==0)
-				{
+				} else if (tabId.compareTo("tag2") == 0) {
 					editDataButton.setEnabled(false);
 					currentTab = 2;
-				}
-				else 
-				{
+				} else {
 					editDataButton.setEnabled(true);
 					if (!checkboxesAreVisible)
 						editDataButton.setText("Edit Priorities");
@@ -496,24 +554,24 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
-        tabs.setup(); 
-        TabHost.TabSpec spec=tabs.newTabSpec("tag1"); 
-        spec.setContent(R.id.tab1); 
-        spec.setIndicator("Main"); 
-        tabs.addTab(spec);
-        spec=tabs.newTabSpec("tag3"); 
-        spec.setContent(R.id.tab3); 
-        spec.setIndicator("Friends"); 
-        tabs.addTab(spec);
-        spec=tabs.newTabSpec("tag2"); 
-        spec.setContent(R.id.tab2); 
-        spec.setIndicator("About"); 
-        tabs.addTab(spec);
-        tabs.setCurrentTab(0);
+		tabs.setup();
+		TabHost.TabSpec spec = tabs.newTabSpec("tag1");
+		spec.setContent(R.id.tab1);
+		spec.setIndicator("Main");
+		tabs.addTab(spec);
+		spec = tabs.newTabSpec("tag3");
+		spec.setContent(R.id.tab3);
+		spec.setIndicator("Friends");
+		tabs.addTab(spec);
+		spec = tabs.newTabSpec("tag2");
+		spec.setContent(R.id.tab2);
+		spec.setIndicator("About");
+		tabs.addTab(spec);
+		tabs.setCurrentTab(0);
 	}
 
 	public void setCurrentTab(int currentTab) {
 		this.currentTab = currentTab;
 	}
-	
+
 }

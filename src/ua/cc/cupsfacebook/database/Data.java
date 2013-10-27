@@ -9,7 +9,7 @@ public class Data {
 	private String bio;
 	private String dateOfBirth;
 	private ArrayList<String> contacts;
-	
+
 	public Data() {
 	}
 
@@ -23,7 +23,8 @@ public class Data {
 		this.contacts = contacts;
 	}
 
-	public Data(String name, String surname, String bio, String dateOfBirth, ArrayList<String> contacts) {
+	public Data(String name, String surname, String bio, String dateOfBirth,
+			ArrayList<String> contacts) {
 		this.name = name;
 		this.surname = surname;
 		this.bio = bio;
@@ -78,5 +79,5 @@ public class Data {
 	public void setContacts(ArrayList<String> contacts) {
 		this.contacts = contacts;
 	}
-	
+
 }

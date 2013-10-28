@@ -1,0 +1,38 @@
+ * Task:
+ * 
+ * When first time launch - authenticate with Facebook:
+ * 
+ * Launch native Facebook application if installed, or a web application in a
+ * popup window otherwise
+ * 
+ * Get a token. If failed, show a message and ask for another try or close the
+ * application
+ * 
+ * User should be able to register on Facebook if he doesn't have an account
+ * 
+ * The user should not enter the application without athenticating on Facebook.
+ * 
+ * Load the user's data from Facebook to the database (first/last name,
+ * birthday, photo, etc). The user information should be updated on the main
+ * activity. The token should be stored in the local application storage.
+ * 
+ * If the user is already authenticated - pass this step and show the main
+ * activity with his data stored in the database.
+ * 
+ * All Facebook API calls and other time consuming actions should be made in a
+ * separate thread. The UI should never be blocked.
+ * 
+ * All asynchronous calls should be easily cancelled by tapping on 'Back' button
+ * on the device and the process should be terminated normally (no any hung
+ * threads).
+ * 
+ * Add logging when needed.
+ * 
+ * There's no need to update user's information on each start, only on the first
+ * login.
+ * 
+ * Add Logout button to signout and exit from the application.
+ * 
+ * All API calls should work with bad or slow Internet connection. No hangouts
+ * in no way. If there's no any connection - tell the user that he should find
+ * one.

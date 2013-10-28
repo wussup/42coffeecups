@@ -8,6 +8,6 @@
     <string name="app_id">578068012229362</string>
     <string name="logout_button">Logout</string>
     <string name="login">Log In</string>
-    <string name="title_activity_ma">MaActivity</string>
+    <string name="title_activity_ma">CupsFacebook</string>
 
 </resources>

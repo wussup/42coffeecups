@@ -14,7 +14,6 @@ import android.util.Log;
 
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
-	private static final int DATABASE_VERSION = 1;
 	private static final String TABLE_USERS = "user_info";
 	private static final String TABLE_CONTACTS = "contact_info";
 
@@ -30,7 +29,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
 	public MySQLiteOpenHelper(Context context, String name,
 			CursorFactory factory, int version) {
-		super(context, Global.DATABASE_NAME, factory, DATABASE_VERSION);
+		super(context, Global.DATABASE_NAME, factory, Global.DATABASE_VERSION);
 	}
 
 	@Override

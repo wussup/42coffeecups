@@ -12,5 +12,6 @@ public class Global {
 	public static final String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/"
 			+ DATABASE_NAME;
 	public static final String TAG = "[CupsFacebook]";
+	public static final int DATABASE_VERSION = 2;
 
 }

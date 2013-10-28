@@ -12,36 +12,41 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 /**
- * MainActivity represents fully functionality of the app. 
+ * MainActivity represents fully functionality of the app.
  * 
  * Task:
- * Create a tabbed android project that would present your name, surname, date of birth, bio,
- * contacts and photo (128x128 with a towel ;) on the main page. The data should
- * be stored in a sqlite database, created and filled automatically on the first
- * launch or when the user data is cleared. 
  * 
- * The application should work on Android 2.x and Android 4.x, portrait and landscape. 
+ * Create a tabbed android project that would present your name, surname, date
+ * of birth, bio, contacts and photo (128x128 with a towel ;) on the main page.
+ * The data should be stored in a sqlite database, created and filled
+ * automatically on the first launch or when the user data is cleared.
  * 
- * Store the last built of the application as attached .apk to the ticket before assigning it to the
- * reviewer. 
+ * The application should work on Android 2.x and Android 4.x, portrait and
+ * landscape.
  * 
- * Place a link to your git repository on Github with the first comment. 
+ * Store the last built of the application as attached .apk to the ticket before
+ * assigning it to the reviewer.
+ * 
+ * Place a link to your git repository on Github with the first comment.
  * 
  * And don't forget about tests.
  * 
  * @version 1.0 27-10-2013
  * @author Taras Melon
- *
+ * 
  */
 public class MainActivity extends Activity {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
@@ -49,7 +54,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		if (!checkDataBase())
+		Boolean b = checkDataBase();
+		if ((b==null) || (!b))
 			addDataToDatabase();
 
 		getDataFromDatabaseAndFillTextViews();
@@ -57,34 +63,23 @@ public class MainActivity extends Activity {
 		setUpTabWidget();
 	}
 
+	/**
+	 * Setting up ListView by adding contacts list with adapter
+	 * 
+	 * @param contacts
+	 *            list of user's contacts
+	 */
 	private void setUpListView(ArrayList<String> contacts) {
-		final ListView listview = (ListView) findViewById(R.id.listView);
+		ListView listView = (ListView) findViewById(R.id.listView);
 
-		final StableArrayAdapter adapter = new StableArrayAdapter(this,
+		StableArrayAdapter adapter = new StableArrayAdapter(this,
 				android.R.layout.simple_list_item_1, contacts);
-		listview.setAdapter(adapter);
+		listView.setAdapter(adapter);
 	}
 
-	private class StableArrayAdapter extends ArrayAdapter<String> {
-
-		HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
-
-		public StableArrayAdapter(Context context, int textViewResourceId,
-				List<String> objects) {
-			super(context, textViewResourceId, objects);
-			for (int i = 0; i < objects.size(); ++i) {
-				mIdMap.put(objects.get(i), i);
-			}
-		}
-
-		@Override
-		public long getItemId(int position) {
-			String item = getItem(position);
-			return mIdMap.get(item);
-		}
-
-	}
-
+	/**
+	 * Getting data from database and fill text views and setting up listView
+	 */
 	private void getDataFromDatabaseAndFillTextViews() {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
 
@@ -99,8 +94,12 @@ public class MainActivity extends Activity {
 		setUpListView(data.getContacts());
 	}
 
+	/**
+	 * Adding data to database
+	 */
 	private void addDataToDatabase() {
-		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, 1);
+		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null,
+				Global.DATABASE_VERSION);
 
 		final ArrayList<String> list = new ArrayList<String>();
 		for (int i = 1; i <= 10; ++i) {
@@ -113,19 +112,36 @@ public class MainActivity extends Activity {
 		helper.addData(data);
 	}
 
-	private boolean checkDataBase() {
+	/**
+	 * Checking if database exists. Method try to open database by path.
+	 * 
+	 * @return Boolean value is returned: null - database doesn't exist, false -
+	 *         database is in another version, true - all good
+	 */
+	private Boolean checkDataBase() {
 		SQLiteDatabase checkDB = null;
+		Boolean b = null;
 		try {
 			checkDB = SQLiteDatabase.openDatabase(Global.DB_FULL_PATH, null,
 					SQLiteDatabase.OPEN_READONLY);
+
+			if (checkDB.getVersion() == Global.DATABASE_VERSION)
+				b = true;
+			else
+				b = false;
+
 			checkDB.close();
+
+			Log.i(Global.TAG, "Database exist");
 		} catch (SQLiteException e) {
-			System.out.println("Database doesn't exist yet");
+			Log.i(Global.TAG, "Database doesn't exist yet");
 		}
-		System.out.println("Database exists");
-		return checkDB != null ? true : false;
+		return b;
 	}
 
+	/**
+	 * Setting up tab widget
+	 */
 	private void setUpTabWidget() {
 		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
 		tabs.setup();
@@ -134,5 +150,49 @@ public class MainActivity extends Activity {
 		spec.setIndicator("Info");
 		tabs.addTab(spec);
 		tabs.setCurrentTab(0);
+	}
+
+	/**
+	 * ArrayAdapter for ListView
+	 * 
+	 * @version 1.0 28-10-2013
+	 * @author Taras Melon
+	 */
+	private class StableArrayAdapter extends ArrayAdapter<String> {
+
+		/**
+		 * List of contacts
+		 */
+		private HashMap<String, Integer> mListOfContacts = new HashMap<String, Integer>();
+
+		/**
+		 * Constructor
+		 * 
+		 * @param context
+		 *            needed context
+		 * @param textViewResourceId
+		 *            type of list view
+		 * @param objects
+		 *            list of contacts
+		 */
+		public StableArrayAdapter(Context context, int textViewResourceId,
+				List<String> objects) {
+			super(context, textViewResourceId, objects);
+			for (int i = 0; i < objects.size(); ++i) {
+				mListOfContacts.put(objects.get(i), i);
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.ArrayAdapter#getItemId(int)
+		 */
+		@Override
+		public long getItemId(int position) {
+			String item = getItem(position);
+			return mListOfContacts.get(item);
+		}
+
 	}
 }

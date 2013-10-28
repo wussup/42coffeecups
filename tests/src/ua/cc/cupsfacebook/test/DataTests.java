@@ -8,7 +8,7 @@ import ua.cc.cupsfacebook.database.Data;
 /**
  * Tests for class Data
  * 
- * @version 1.0 28-10-2013
+ * @version 1.1 28-10-2013
  * @author Taras Melon
  */
 public class DataTests extends TestCase {
@@ -48,7 +48,8 @@ public class DataTests extends TestCase {
 			list.add("Contact" + i);
 		}
 
-		Data data = new Data(id, "name", "surname", "bio", "dateOfBirth", list);
+		Data data = new Data(id, "name", "surname", "bio", "dateOfBirth", "1",
+				list);
 		assertEquals(data.getId(), id);
 	}
 

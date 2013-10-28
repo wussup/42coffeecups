@@ -53,7 +53,8 @@ public class MainActivity extends Activity {
 
 		mUserPicture = (ImageView) findViewById(R.id.imageView);
 
-		if (checkDataBase())
+		Boolean b = checkDataBase();
+		if ((b != null) && (b))
 			getDataFromDatabaseAndFillTextViews();
 
 		setUpTabWidget();
@@ -84,6 +85,11 @@ public class MainActivity extends Activity {
 	 */
 	private void setUpListView(ArrayList<String> contacts) {
 		ListView listView = (ListView) findViewById(R.id.listView);
+
+		if (contacts == null) {
+			contacts = new ArrayList<String>();
+			contacts.add("Error");
+		}
 
 		StableArrayAdapter adapter = new StableArrayAdapter(this,
 				android.R.layout.simple_list_item_1, contacts);

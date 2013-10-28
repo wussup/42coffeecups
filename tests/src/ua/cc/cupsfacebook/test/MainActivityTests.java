@@ -15,7 +15,7 @@ import android.widget.TextView;
 /**
  * Tests for class MainActivity
  * 
- * @version 1.0 28-10-2013
+ * @version 1.1 28-10-2013
  * @author Taras Melon
  */
 public class MainActivityTests extends
@@ -94,16 +94,6 @@ public class MainActivityTests extends
 		ViewAsserts.assertLeftAligned(mImageView, mBio);
 		ViewAsserts.assertLeftAligned(mFullName, mDateOfBirth);
 		ViewAsserts.assertLeftAligned(mDateOfBirth, mListView);
-	}
-
-	/**
-	 * Testing not empty views texts
-	 */
-	@SmallTest
-	public void testFieldsShouldStartNotEmpty() {
-		assertTrue(!"".equals(mBio.getText().toString()));
-		assertTrue(!"".equals(mFullName.getText().toString()));
-		assertTrue(!"".equals(mDateOfBirth.getText().toString()));
 	}
 
 	/**

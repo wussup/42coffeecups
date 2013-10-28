@@ -9,7 +9,7 @@ import android.test.AndroidTestCase;
 /**
  * Tests for class MySQLiteOpenHelper
  * 
- * @version 1.0 28-10-2013
+ * @version 1.1 28-10-2013
  * @author Taras Melon
  */
 public class MySQLiteOpenHelperTests extends AndroidTestCase {
@@ -59,7 +59,7 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 		}
 
 		Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992",
-				list);
+				"1", list);
 
 		db.addData(data);
 
@@ -68,6 +68,7 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 		assertEquals(data.getDateOfBirth(), fetchedData.getDateOfBirth());
 		assertEquals(data.getName(), fetchedData.getName());
 		assertEquals(data.getSurname(), fetchedData.getSurname());
+		assertEquals(data.getUserId(), fetchedData.getUserId());
 		int i = 0;
 		for (String actual : fetchedData.getContacts()) {
 			assertEquals(list.get(i), actual);

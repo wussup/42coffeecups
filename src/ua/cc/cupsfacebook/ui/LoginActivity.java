@@ -59,7 +59,7 @@ public class LoginActivity extends FragmentActivity {
 
 		sessionOpen(savedInstanceState);
 
-		findViewById(R.id.logoutButton).setOnClickListener(
+		findViewById(R.id.loginButton).setOnClickListener(
 				new View.OnClickListener() {
 
 					@Override

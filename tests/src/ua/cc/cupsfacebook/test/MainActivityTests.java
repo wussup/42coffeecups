@@ -1,10 +1,8 @@
-/**
- * 
- */
 package ua.cc.cupsfacebook.test;
 
-import ua.cc.cupsfacebook.R;
 import ua.cc.cupsfacebook.MainActivity;
+import ua.cc.cupsfacebook.R;
+import ua.cc.cupsfacebook.util.Global;
 import android.annotation.SuppressLint;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.ViewAsserts;
@@ -15,10 +13,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 /**
- * @author Taras
- *
+ * Tests for class MainActivity
+ * 
+ * @version 1.0 28-10-2013
+ * @author Taras Melon
  */
-public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActivity> {
+public class MainActivityTests extends
+		ActivityInstrumentationTestCase2<MainActivity> {
 
 	private MainActivity mActivity;
 	private TextView mBio;
@@ -26,8 +27,7 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 	private TextView mFullName;
 	private ListView mListView;
 	private ImageView mImageView;
-	private static final String DATABASE_NAME = "infoDB.db";
-	
+
 	/**
 	 * @param name
 	 */
@@ -37,15 +37,17 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		setName(name);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.test.ActivityInstrumentationTestCase2#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
 		mActivity = getActivity();
 		assertNotNull(mActivity);
-		
+
 		mBio = (TextView) mActivity.findViewById(R.id.bio);
 		assertNotNull(mBio);
 		mDateOfBirth = (TextView) mActivity.findViewById(R.id.dateOfBirth);
@@ -56,45 +58,61 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		assertNotNull(mListView);
 		mImageView = (ImageView) mActivity.findViewById(R.id.imageView);
 		assertNotNull(mImageView);
-		
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.test.ActivityInstrumentationTestCase2#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
 
+	/**
+	 * Testing views on screen
+	 */
 	@SmallTest
-	public void testFieldsOnScreen()
-	{
-		final View origin =
-				mActivity.getWindow().getDecorView();
-		
+	public void testFieldsOnScreen() {
+		final View origin = mActivity.getWindow().getDecorView();
+
 		ViewAsserts.assertOnScreen(origin, mBio);
 		ViewAsserts.assertOnScreen(origin, mDateOfBirth);
 		ViewAsserts.assertOnScreen(origin, mFullName);
 		ViewAsserts.assertOnScreen(origin, mListView);
 		ViewAsserts.assertOnScreen(origin, mImageView);
 	}
-	
+
+	/**
+	 * Testing views alignment
+	 */
 	@SmallTest
-	public void testAlignment()
-	{
+	public void testAlignment() {
 		ViewAsserts.assertRightAligned(mFullName, mDateOfBirth);
-		ViewAsserts.assertRightAligned(mDateOfBirth,mListView);
+		ViewAsserts.assertRightAligned(mDateOfBirth, mListView);
 		ViewAsserts.assertRightAligned(mListView, mBio);
 		ViewAsserts.assertLeftAligned(mImageView, mBio);
 		ViewAsserts.assertLeftAligned(mFullName, mDateOfBirth);
 		ViewAsserts.assertLeftAligned(mDateOfBirth, mListView);
 	}
-	
+
+	/**
+	 * Testing not empty views texts
+	 */
 	@SmallTest
-	public void testAddDataToDatabase()
-	{
-		mActivity.deleteDatabase(DATABASE_NAME);
-		
+	public void testFieldsShouldStartNotEmpty() {
+		assertTrue(!"".equals(mBio.getText().toString()));
+		assertTrue(!"".equals(mFullName.getText().toString()));
+		assertTrue(!"".equals(mDateOfBirth.getText().toString()));
+	}
+
+	/**
+	 * Testing adding data to database
+	 */
+	@SmallTest
+	public void testAddDataToDatabase() {
+		mActivity.deleteDatabase(Global.DATABASE_NAME);
+
 		mActivity = getActivity();
 	}
 }

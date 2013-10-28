@@ -1,7 +1,7 @@
 package ua.cc.cupsfacebook.util;
 
 /**
- * Class represents all app's global variables
+ * Class represents all app's global variables that are used from many classes
  * 
  * @version 1.0 27-10-2013
  * @author Taras Melon

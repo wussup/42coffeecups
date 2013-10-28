@@ -20,18 +20,18 @@ import android.util.Log;
  */
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
-	private static final String TABLE_USERS = "user_info";
-	private static final String TABLE_CONTACTS = "contact_info";
+	public static final String TABLE_USERS = "user_info";
+	public static final String TABLE_CONTACTS = "contact_info";
 
-	private static final String USER_COLUMN_ID = "id";
-	private static final String USER_COLUMN_NAME = "name";
-	private static final String USER_COLUMN_SURNAME = "surname";
-	private static final String USER_COLUMN_BIO = "bio";
-	private static final String USER_COLUMN_DATEOFBIRTH = "dateOfBirth";
+	public static final String USER_COLUMN_ID = "id";
+	public static final String USER_COLUMN_NAME = "name";
+	public static final String USER_COLUMN_SURNAME = "surname";
+	public static final String USER_COLUMN_BIO = "bio";
+	public static final String USER_COLUMN_DATEOFBIRTH = "dateOfBirth";
 
-	private static final String CONTACT_COLUMN_ID = "id";
-	private static final String CONTACT_COLUMN_USER_ID = "userId";
-	private static final String CONTACT_COLUMN_FULL_NAME = "fullName";
+	public static final String CONTACT_COLUMN_ID = "id";
+	public static final String CONTACT_COLUMN_USER_ID = "userId";
+	public static final String CONTACT_COLUMN_FULL_NAME = "fullName";
 
 	public MySQLiteOpenHelper(Context context, String name,
 			CursorFactory factory, int version) {
@@ -128,8 +128,10 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 	/**
 	 * Adding contacts from cursor to data object
 	 * 
-	 * @param data object represents user info
-	 * @param cursor object represents result rows from executed query
+	 * @param data
+	 *            object represents user info
+	 * @param cursor
+	 *            object represents result rows from executed query
 	 */
 	private void addContactsFromCursor(Data data, Cursor cursor) {
 		if (cursor.moveToFirst()) {
@@ -151,8 +153,10 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 	/**
 	 * Adding all data without contacts from cursor to data object
 	 * 
-	 * @param data object represents user info
-	 * @param cursor object represents result rows from executed query
+	 * @param data
+	 *            object represents user info
+	 * @param cursor
+	 *            object represents result rows from executed query
 	 */
 	private void addDataWithoutContactsFromCursor(Data data, Cursor cursor) {
 		if (cursor.moveToFirst()) {

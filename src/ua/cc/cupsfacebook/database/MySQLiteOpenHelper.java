@@ -39,6 +39,15 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		super(context, Global.DATABASE_NAME, factory, Global.DATABASE_VERSION);
 	}
 
+	/*
+	 * Creating two tables: users and contacts
+	 * 
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite
+	 * .SQLiteDatabase)
+	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		String createUsersTable = "CREATE TABLE " + TABLE_USERS + "("
@@ -56,6 +65,16 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		db.execSQL(createContactsTable);
 	}
 
+	/*
+	 * Deleting old tables and creating new, when database version is out of
+	 * date
+	 * 
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite
+	 * .SQLiteDatabase, int, int)
+	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		String startSql = "DROP TABLE IF EXISTS ";

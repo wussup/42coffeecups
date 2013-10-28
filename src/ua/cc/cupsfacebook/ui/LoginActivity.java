@@ -29,49 +29,58 @@ import com.facebook.SessionState;
 import com.facebook.Settings;
 import com.facebook.model.GraphUser;
 
+/**
+ * Activity represents functionality for log in Facebook account via Facebook
+ * app or web-browser
+ * 
+ * @version 1.0 28-10-2013
+ * @author Taras Melon
+ */
 public class LoginActivity extends FragmentActivity {
 
-	private Session.StatusCallback statusCallback = new SessionStatusCallback();
-	private ProgressDialog dialog;
+	private Session.StatusCallback mStatusCallback = new SessionStatusCallback();
+	private ProgressDialog mDialog;
 
-	@SuppressWarnings("deprecation")
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_empty);
 
 		if (!isNetworkAvailable()) {
-			AlertDialog alertDialog = new AlertDialog.Builder(
-					LoginActivity.this).create();
-
-			// Setting Dialog Title
-			alertDialog.setTitle("No Connection!");
-
-			// Setting Dialog Message
-			alertDialog.setMessage("You should find Internet connection!");
-
-			alertDialog.setCancelable(false);
-
-			// Setting OK Button
-			alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-
-				public void onClick(DialogInterface dialog, int which) {
-					// Write your code here to execute after dialog
-					// closed
-					finish();
-				}
-			});
-
-			// Showing Alert Message
-			alertDialog.show();
+			createAndShowAlertDialog();
 		}
 
 		Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
 
+		sessionOpen(savedInstanceState);
+
+		findViewById(R.id.logoutButton).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						onClickLogin();
+					}
+				});
+	}
+
+	/**
+	 * Trying to get active session. If success, then starts MainActivity, else
+	 * open session and go through all functions needed for start MainActivity
+	 * 
+	 * @param savedInstanceState
+	 *            bundle from onCreate method
+	 */
+	private void sessionOpen(Bundle savedInstanceState) {
 		Session session = Session.getActiveSession();
 		if (session == null) {
 			if (savedInstanceState != null) {
-				session = Session.restoreSession(this, null, statusCallback,
+				session = Session.restoreSession(this, null, mStatusCallback,
 						savedInstanceState);
 			}
 			if (session == null) {
@@ -83,29 +92,52 @@ public class LoginActivity extends FragmentActivity {
 				permissions.add("user_birthday");
 
 				session.openForRead(new Session.OpenRequest(this).setCallback(
-						statusCallback).setPermissions(permissions));
+						mStatusCallback).setPermissions(permissions));
 			}
 		} else {
 			runIfOpened(session);
 		}
-
-		findViewById(R.id.button1).setOnClickListener(
-				new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						onClickLogin();
-					}
-				});
 	}
 
+	/**
+	 * Creating and showing AlertDialog, if network connection is unaccessible
+	 */
+	@SuppressWarnings("deprecation")
+	private void createAndShowAlertDialog() {
+		AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this)
+				.create();
+
+		alertDialog.setTitle("No Connection!");
+
+		alertDialog.setMessage("You should find Internet connection!");
+
+		alertDialog.setCancelable(false);
+
+		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		});
+
+		alertDialog.show();
+	}
+
+	/**
+	 * If session is opened and network connection is available, method checking
+	 * database for errors and in good case starts the MainActivity, but in bad
+	 * case - fix errors
+	 * 
+	 * @param session
+	 *            current session info
+	 */
 	private void runIfOpened(Session session) {
 		if (session.isOpened()) {
 
 			if (isNetworkAvailable()) {
 				Boolean b = checkDataBase();
 				if ((b == null) || (!b)) {
-					dialog = ProgressDialog.show(this, "Loading",
+					mDialog = ProgressDialog.show(this, "Loading",
 							"Please wait...", true);
 					makeMeRequest(session);
 				} else {
@@ -115,6 +147,11 @@ public class LoginActivity extends FragmentActivity {
 		}
 	}
 
+	/**
+	 * Checking if network connection is available
+	 * 
+	 * @return true - if available, false - in other case
+	 */
 	private boolean isNetworkAvailable() {
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = connectivityManager
@@ -122,9 +159,14 @@ public class LoginActivity extends FragmentActivity {
 		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 
+	/**
+	 * Making request for me data from Facebook account, adding fetched data to
+	 * database and starting MainActivity
+	 * 
+	 * @param session
+	 *            current session info
+	 */
 	private void makeMeRequest(final Session session) {
-		// Make an API call to get user data and define a
-		// new callback to handle the response.
 		Request request = Request.newMeRequest(session,
 				new Request.GraphUserCallback() {
 					@Override
@@ -132,27 +174,28 @@ public class LoginActivity extends FragmentActivity {
 						// If the response is successful
 						if (session == Session.getActiveSession()) {
 							if (user != null) {
-								// Set the id for the ProfilePictureView
-								// view that in turn displays the profile
-								// picture.
-
-								// Set the Textview's text to the user's name.
-
 								addDataToDatabase(user);
 
-								dialog.dismiss();
+								mDialog.dismiss();
 
 								startMainActivity();
 							}
 						}
 						if (response.getError() != null) {
-							// Handle errors, will do so later.
+							Log.e(Global.TAG, response.getError()
+									.getErrorMessage());
 						}
 					}
 				});
 		request.executeAsync();
 	}
 
+	/**
+	 * Adding fetched data from GraphUser class to database
+	 * 
+	 * @param user
+	 *            data from Facebook account
+	 */
 	private void addDataToDatabase(GraphUser user) {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null,
 				Global.DATABASE_VERSION);
@@ -172,13 +215,13 @@ public class LoginActivity extends FragmentActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		Session.getActiveSession().addCallback(statusCallback);
+		Session.getActiveSession().addCallback(mStatusCallback);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		Session.getActiveSession().removeCallback(statusCallback);
+		Session.getActiveSession().removeCallback(mStatusCallback);
 	}
 
 	@Override
@@ -195,17 +238,29 @@ public class LoginActivity extends FragmentActivity {
 		Session.saveSession(session, outState);
 	}
 
+	/**
+	 * Starting runIfOpened method with session object 
+	 */
 	private void updateView() {
 		Session session = Session.getActiveSession();
 		runIfOpened(session);
 	}
 
+	/**
+	 * Starting MainActivity
+	 */
 	private void startMainActivity() {
 		Intent i = new Intent(LoginActivity.this, MainActivity.class);
 		startActivity(i);
 		finish();
 	}
 
+	/**
+     * Checking if database exists. Method tries to open database by path.
+     * 
+     * @return Boolean value is returned: null - database doesn't exist, false -
+     *         database is in another version, true - all good
+     */
 	private Boolean checkDataBase() {
 		SQLiteDatabase checkDB = null;
 		Boolean b = null;
@@ -227,14 +282,9 @@ public class LoginActivity extends FragmentActivity {
 		return b;
 	}
 
-	private class SessionStatusCallback implements Session.StatusCallback {
-		@Override
-		public void call(Session session, SessionState state,
-				Exception exception) {
-			updateView();
-		}
-	}
-
+	/**
+	 * Opening session onClick Login button
+	 */
 	private void onClickLogin() {
 		Session session = Session.getActiveSession();
 		if (!session.isOpened() && !session.isClosed()) {
@@ -242,9 +292,23 @@ public class LoginActivity extends FragmentActivity {
 			permissions.add("user_birthday");
 
 			session.openForRead(new Session.OpenRequest(this).setCallback(
-					statusCallback).setPermissions(permissions));
+					mStatusCallback).setPermissions(permissions));
 		} else {
-			Session.openActiveSession(this, true, statusCallback);
+			Session.openActiveSession(this, true, mStatusCallback);
+		}
+	}
+	
+	/**
+	 * Class represents callback from Facebook API
+	 * 
+	 * @version 1.0 28-10-2013
+	 * @author Taras Melon
+	 */
+	private class SessionStatusCallback implements Session.StatusCallback {
+		@Override
+		public void call(Session session, SessionState state,
+				Exception exception) {
+			updateView();
 		}
 	}
 }

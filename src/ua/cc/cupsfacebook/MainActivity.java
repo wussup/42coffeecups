@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
 
 		setUpTabWidget();
 
-		findViewById(R.id.button1).setOnClickListener(
+		findViewById(R.id.logoutButton).setOnClickListener(
 				new View.OnClickListener() {
 
 					@Override
@@ -206,9 +206,9 @@ public class MainActivity extends Activity {
 						.openConnection().getInputStream());
 				return mIcon1;
 			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				Log.e(Global.TAG, e.getMessage());
 			} catch (IOException e) {
-				e.printStackTrace();
+				Log.e(Global.TAG, e.getMessage());
 			}
 			return null;
 		}

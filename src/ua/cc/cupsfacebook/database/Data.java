@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Simple POJO class represents information about user (name, surname,
- * biography, date of birth and contacts)
+ * biography, date of birth, Facebook User ID and contacts)
  * 
  * @version 1.1 28-10-2013
  * @author Taras Melon
@@ -101,11 +101,6 @@ public class Data {
 
 	public void setDateOfBirth(String dateOfBirth) {
 		this.mDateOfBirth = dateOfBirth;
-	}
-
-	public String toString() {
-		return mId + ";" + mBio + ";" + mDateOfBirth + ";" + mName + ";"
-				+ mSurname + ";" + mUserId;
 	}
 
 	public ArrayList<String> getContacts() {

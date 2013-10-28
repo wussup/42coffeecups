@@ -7,7 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity" >
-    
+
     <TabHost
         android:id="@+id/tabhost"
         android:layout_width="match_parent"
@@ -25,7 +25,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="visible" >
-
             </TabWidget>
 
             <FrameLayout
@@ -67,8 +66,7 @@
                         android:layout_toRightOf="@+id/imageView"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge" />
-                        <!--  android:inputType="textPersonName" -->
-                        
+                    <!-- android:inputType="textPersonName" -->
 
                     <TextView
                         android:id="@+id/dateOfBirth"
@@ -105,19 +103,16 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
                 </LinearLayout>
-
             </FrameLayout>
-
         </LinearLayout>
-
     </TabHost>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/tabhost"
         android:layout_alignParentBottom="true"
         android:text="@string/logout_button" />
-    
+
 </RelativeLayout>

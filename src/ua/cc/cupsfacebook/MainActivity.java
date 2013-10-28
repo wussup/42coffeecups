@@ -21,22 +21,7 @@ import android.widget.TextView;
 /**
  * MainActivity represents fully functionality of the app.
  * 
- * Task:
- * 
- * Create a tabbed android project that would present your name, surname, date
- * of birth, bio, contacts and photo (128x128 with a towel ;) on the main page.
- * The data should be stored in a sqlite database, created and filled
- * automatically on the first launch or when the user data is cleared.
- * 
- * The application should work on Android 2.x and Android 4.x, portrait and
- * landscape.
- * 
- * Store the last built of the application as attached .apk to the ticket before
- * assigning it to the reviewer.
- * 
- * Place a link to your git repository on Github with the first comment.
- * 
- * And don't forget about tests.
+ * Description of functionality you can find in file README
  * 
  * @version 1.0 27-10-2013
  * @author Taras Melon
@@ -55,7 +40,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		Boolean b = checkDataBase();
-		if ((b==null) || (!b))
+		if ((b == null) || (!b))
 			addDataToDatabase();
 
 		getDataFromDatabaseAndFillTextViews();
@@ -132,7 +117,7 @@ public class MainActivity extends Activity {
 
 			checkDB.close();
 
-			Log.i(Global.TAG, "Database exist");
+			Log.i(Global.TAG, "Database exists");
 		} catch (SQLiteException e) {
 			Log.i(Global.TAG, "Database doesn't exist yet");
 		}

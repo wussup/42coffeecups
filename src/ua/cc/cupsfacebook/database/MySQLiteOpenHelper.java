@@ -12,6 +12,12 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+/**
+ * Class helps us to have to deal with database
+ * 
+ * @version 1.0 28-10-2013
+ * @author Taras Melon
+ */
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
 	private static final String TABLE_USERS = "user_info";
@@ -57,6 +63,12 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 
+	/**
+	 * Adding user info to database from argument Data object
+	 * 
+	 * @param data
+	 *            object represents user info
+	 */
 	public void addData(Data data) {
 		ContentValues values = new ContentValues();
 		values.put(USER_COLUMN_NAME, data.getName());
@@ -80,6 +92,11 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		db.close();
 	}
 
+	/**
+	 * Fetching user info from database
+	 * 
+	 * @return object represents user info
+	 */
 	public Data findData() {
 		Data data = null;
 		try {
@@ -91,15 +108,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
 			data = new Data();
 
-			if (cursor.moveToFirst()) {
-				cursor.moveToFirst();
-				data.setId(Integer.parseInt(cursor.getString(0)));
-				data.setName(cursor.getString(1));
-				data.setSurname(cursor.getString(2));
-				data.setBio(cursor.getString(3));
-				data.setDateOfBirth(cursor.getString(4));
-				cursor.close();
-			}
+			addDataWithoutContactsFromCursor(data, cursor);
 
 			query = "Select " + CONTACT_COLUMN_FULL_NAME + " FROM "
 					+ TABLE_CONTACTS + " WHERE " + CONTACT_COLUMN_USER_ID + "="
@@ -107,26 +116,54 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
 			cursor = db.rawQuery(query, null);
 
-			if (cursor.moveToFirst()) {
-				ArrayList<String> contacts = new ArrayList<String>();
-				cursor.moveToFirst();
-
-				for (int i = 0; i < cursor.getCount(); i++) {
-					contacts.add(cursor.getString(0));
-
-					cursor.moveToNext();
-				}
-
-				cursor.close();
-
-				data.setContacts(contacts);
-			}
+			addContactsFromCursor(data, cursor);
 
 			db.close();
 		} catch (SQLiteException ex) {
 			Log.e(Global.TAG, ex.getMessage());
 		}
 		return data;
+	}
+
+	/**
+	 * Adding contacts from cursor to data object
+	 * 
+	 * @param data object represents user info
+	 * @param cursor object represents result rows from executed query
+	 */
+	private void addContactsFromCursor(Data data, Cursor cursor) {
+		if (cursor.moveToFirst()) {
+			ArrayList<String> contacts = new ArrayList<String>();
+			cursor.moveToFirst();
+
+			for (int i = 0; i < cursor.getCount(); i++) {
+				contacts.add(cursor.getString(0));
+
+				cursor.moveToNext();
+			}
+
+			cursor.close();
+
+			data.setContacts(contacts);
+		}
+	}
+
+	/**
+	 * Adding all data without contacts from cursor to data object
+	 * 
+	 * @param data object represents user info
+	 * @param cursor object represents result rows from executed query
+	 */
+	private void addDataWithoutContactsFromCursor(Data data, Cursor cursor) {
+		if (cursor.moveToFirst()) {
+			cursor.moveToFirst();
+			data.setId(Integer.parseInt(cursor.getString(0)));
+			data.setName(cursor.getString(1));
+			data.setSurname(cursor.getString(2));
+			data.setBio(cursor.getString(3));
+			data.setDateOfBirth(cursor.getString(4));
+			cursor.close();
+		}
 	}
 
 }

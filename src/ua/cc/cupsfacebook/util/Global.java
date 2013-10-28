@@ -8,10 +8,25 @@ package ua.cc.cupsfacebook.util;
  */
 public class Global {
 
+	/**
+	 * Database name string
+	 */
 	public static final String DATABASE_NAME = "infoDB.db";
+
+	/**
+	 * Full path to database placement
+	 */
 	public static final String DB_FULL_PATH = "//data/data/ua.cc.cupsfacebook/databases/"
 			+ DATABASE_NAME;
+
+	/**
+	 * Tag for logging
+	 */
 	public static final String TAG = "[CupsFacebook]";
-	public static final int DATABASE_VERSION = 2;
+
+	/**
+	 * Database current version
+	 */
+	public static final int DATABASE_VERSION = 1;
 
 }

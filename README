@@ -1,0 +1,16 @@
+ * Task:
+ * 
+ * Create a tabbed android project that would present your name, surname, date
+ * of birth, bio, contacts and photo (128x128 with a towel ;) on the main page.
+ * The data should be stored in a sqlite database, created and filled
+ * automatically on the first launch or when the user data is cleared.
+ * 
+ * The application should work on Android 2.x and Android 4.x, portrait and
+ * landscape.
+ * 
+ * Store the last built of the application as attached .apk to the ticket before
+ * assigning it to the reviewer.
+ * 
+ * Place a link to your git repository on Github with the first comment.
+ * 
+ * And don't forget about tests.

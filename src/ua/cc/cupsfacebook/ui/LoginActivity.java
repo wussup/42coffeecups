@@ -33,7 +33,7 @@ import com.facebook.model.GraphUser;
  * Activity represents functionality for log in Facebook account via Facebook
  * app or web-browser
  * 
- * @version 1.0 28-10-2013
+ * @version 1.1 28-10-2013
  * @author Taras Melon
  */
 public class LoginActivity extends FragmentActivity {
@@ -99,8 +99,12 @@ public class LoginActivity extends FragmentActivity {
 		}
 	}
 
+	/**
+	 * Adding data about me to database
+	 */
 	private void addDataToDatabase() {
-		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null, Global.DATABASE_VERSION);
+		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null,
+				Global.DATABASE_VERSION);
 
 		final ArrayList<String> list = new ArrayList<String>();
 		for (int i = 1; i <= 10; ++i) {
@@ -191,7 +195,7 @@ public class LoginActivity extends FragmentActivity {
 								addDataToDatabase(user);
 
 								addDataToDatabase();
-								
+
 								mDialog.dismiss();
 
 								if (isNetworkAvailable())

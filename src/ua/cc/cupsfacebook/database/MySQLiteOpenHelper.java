@@ -116,7 +116,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Fetching user info from database
+	 * Fetching info about user and me from database
 	 * 
 	 * @return object represents user info
 	 */
@@ -129,37 +129,18 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
 			Cursor cursor = db.rawQuery(query, null);
 
-			Data userData = new Data();
-			if (cursor.moveToFirst()) {
-				cursor.moveToFirst();
-				addDataWithoutContactsFromCursor(userData, cursor);
-			}
-
-			Data myData = new Data();
-			if (cursor.moveToNext()) {
-				addDataWithoutContactsFromCursor(myData, cursor);
-			}
-
-			cursor.close();
+			getUserAndMyData(dataList, cursor);
 
 			String startQuery = "Select " + CONTACT_COLUMN_FULL_NAME + " FROM "
 					+ TABLE_CONTACTS + " WHERE " + CONTACT_COLUMN_USER_ID + "=";
 
-			query = startQuery + userData.getId();
-
+			query = startQuery + dataList.get(0).getId();
 			cursor = db.rawQuery(query, null);
+			addContactsFromCursor(dataList.get(0), cursor);
 
-			addContactsFromCursor(userData, cursor);
-
-			dataList.add(userData);
-
-			query = startQuery + myData.getId();
-
+			query = startQuery + dataList.get(1).getId();
 			cursor = db.rawQuery(query, null);
-
-			addContactsFromCursor(myData, cursor);
-
-			dataList.add(myData);
+			addContactsFromCursor(dataList.get(1), cursor);
 
 			db.close();
 		} catch (SQLiteException ex) {
@@ -168,6 +149,40 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		return dataList;
 	}
 
+	/**
+	 * Fetching and setting info without contacts about user and me
+	 * 
+	 * @param dataList
+	 *            list which contains info about me and user
+	 * @param cursor
+	 *            object represents result rows from executed query
+	 */
+	private void getUserAndMyData(ArrayList<Data> dataList, Cursor cursor) {
+		Data userData = new Data();
+		if (cursor.moveToFirst()) {
+			cursor.moveToFirst();
+			addDataWithoutContactsFromCursor(userData, cursor);
+		}
+		dataList.add(userData);
+
+		Data myData = new Data();
+		if (cursor.moveToNext()) {
+			addDataWithoutContactsFromCursor(myData, cursor);
+		}
+		dataList.add(myData);
+
+		cursor.close();
+	}
+
+	/**
+	 * Updating user name
+	 * 
+	 * @param id
+	 *            user's id in table Users
+	 * @param newName
+	 *            new user name
+	 * @return if success return true, else false
+	 */
 	public boolean updateName(int id, String newName) {
 		try {
 			SQLiteDatabase db = this.getWritableDatabase();
@@ -185,6 +200,15 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		return true;
 	}
 
+	/**
+	 * Updating user surname
+	 * 
+	 * @param id
+	 *            user's id in table Users
+	 * @param newSurname
+	 *            new user surname
+	 * @return if success return true, else false
+	 */
 	public boolean updateSurname(int id, String newSurname) {
 		try {
 			SQLiteDatabase db = this.getWritableDatabase();
@@ -202,6 +226,15 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		return true;
 	}
 
+	/**
+	 * Updating user date of birth
+	 * 
+	 * @param id
+	 *            user's id in table Users
+	 * @param newDate
+	 *            new user date of birth
+	 * @return if success return true, else false
+	 */
 	public boolean updateDateOfBirth(int id, String newDate) {
 		try {
 			SQLiteDatabase db = this.getWritableDatabase();
@@ -219,6 +252,15 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 		return true;
 	}
 
+	/**
+	 * Updating user biography
+	 * 
+	 * @param id
+	 *            user's id in table Users
+	 * @param newBio
+	 *            new user biography
+	 * @return if success return true, else false
+	 */
 	public boolean updateBio(int id, String newBio) {
 		try {
 			SQLiteDatabase db = this.getWritableDatabase();

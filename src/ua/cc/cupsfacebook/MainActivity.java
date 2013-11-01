@@ -60,10 +60,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mUserPicture = (ImageView) findViewById(R.id.imageView);
-		mEditDataButton = (Button) findViewById(R.id.editDataButton);
-		mFullName = (TextView) findViewById(R.id.fullName);
-		mMyFullName = (TextView) findViewById(R.id.fullNameMine);
+		setUpFields();
 
 		Boolean b = checkDataBase();
 		if ((b != null) && (b))
@@ -84,19 +81,35 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				if (mCurrentTab == 1) {
-					Intent i = new Intent(MainActivity.this,
-							EditDataActivity.class);
-					i.putExtra("NAME", mCurrentData.getName());
-					i.putExtra("SURNAME", mCurrentData.getSurname());
-					i.putExtra("BIO", mCurrentData.getBio());
-					i.putExtra("DATE_OF_BIRTH", mCurrentData.getDateOfBirth());
-					i.putExtra("ID", mId);
-					startActivity(i);
-					MainActivity.this.finish();
-				}
+				currentTabActions();
 			}
 		});
+	}
+
+	/**
+	 * Different actions for on click listener on edit data button
+	 */
+	private void currentTabActions() {
+		if (mCurrentTab == 1) {
+			Intent i = new Intent(MainActivity.this, EditDataActivity.class);
+			i.putExtra("NAME", mCurrentData.getName());
+			i.putExtra("SURNAME", mCurrentData.getSurname());
+			i.putExtra("BIO", mCurrentData.getBio());
+			i.putExtra("DATE_OF_BIRTH", mCurrentData.getDateOfBirth());
+			i.putExtra("ID", mId);
+			startActivity(i);
+			MainActivity.this.finish();
+		}
+	}
+
+	/**
+	 * Setting up activity fields
+	 */
+	private void setUpFields() {
+		mUserPicture = (ImageView) findViewById(R.id.imageView);
+		mEditDataButton = (Button) findViewById(R.id.editDataButton);
+		mFullName = (TextView) findViewById(R.id.fullName);
+		mMyFullName = (TextView) findViewById(R.id.fullNameMine);
 	}
 
 	/**
@@ -133,7 +146,6 @@ public class MainActivity extends Activity {
 	 * Getting data from database and fill text views and setting up listView
 	 */
 	private void getDataFromDatabaseAndFillTextViews() {
-
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null,
 				Global.DATABASE_VERSION);
 
@@ -194,6 +206,11 @@ public class MainActivity extends Activity {
 		return b;
 	}
 
+	/**
+	 * Setting up my contacts list view
+	 * 
+	 * @param list my contacts list
+	 */
 	private void setUpMyListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listViewMine);
 
@@ -275,6 +292,12 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * AsyncTask for download user's avatar
+	 * 
+	 * @version 1.0 01-11-2013
+	 * @author Taras Melon
+	 */
 	class RetreiveFeedTask extends AsyncTask<String, Void, Bitmap> {
 
 		protected Bitmap doInBackground(String... urls) {

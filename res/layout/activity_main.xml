@@ -55,8 +55,7 @@
                         android:layout_toRightOf="@+id/imageView"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge" />
-                        <!--  android:inputType="textPersonName" -->
-                        
+                    <!-- android:inputType="textPersonName" -->
 
                     <TextView
                         android:id="@+id/dateOfBirth"
@@ -77,7 +76,6 @@
                         android:layout_below="@+id/dateOfBirth"
                         android:layout_margin="5dp"
                         android:layout_toRightOf="@+id/imageView" >
-
                     </ListView>
 
                     <TextView
@@ -90,7 +88,6 @@
                         android:layout_below="@+id/imageView"
                         android:layout_margin="5dp"
                         android:textAppearance="?android:attr/textAppearanceSmall" />
-
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -117,8 +114,7 @@
                         android:layout_toRightOf="@+id/imageViewMine"
                         android:text=""
                         android:textAppearance="?android:attr/textAppearanceLarge" />
-                        <!--  android:inputType="textPersonName" -->
-                        
+                    <!-- android:inputType="textPersonName" -->
 
                     <TextView
                         android:id="@+id/dateOfBirthMine"
@@ -139,7 +135,6 @@
                         android:layout_below="@+id/dateOfBirthMine"
                         android:layout_margin="5dp"
                         android:layout_toRightOf="@+id/imageViewMine" >
-
                     </ListView>
 
                     <TextView

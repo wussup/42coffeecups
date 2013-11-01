@@ -1,11 +1,15 @@
-/**
- * 
- */
 package ua.cc.cupsfacebook.test;
 
+<<<<<<< HEAD
 import ua.cc.cupsfacebook.EditDataActivity;
+=======
+>>>>>>> refs/heads/t2_contact
 import ua.cc.cupsfacebook.MainActivity;
 import ua.cc.cupsfacebook.R;
+<<<<<<< HEAD
+=======
+import ua.cc.cupsfacebook.util.Global;
+>>>>>>> refs/heads/t2_contact
 import android.annotation.SuppressLint;
 import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
@@ -19,10 +23,13 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 /**
- * @author Taras
- *
+ * Tests for class MainActivity
+ * 
+ * @version 1.1 28-10-2013
+ * @author Taras Melon
  */
-public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActivity> {
+public class MainActivityTests extends
+		ActivityInstrumentationTestCase2<MainActivity> {
 
 	private MainActivity mActivity;
 	private TextView mBio;
@@ -30,10 +37,14 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 	private TextView mFullName;
 	private ListView mListView;
 	private ImageView mImageView;
+<<<<<<< HEAD
 	private Button editData;
 	private Button logout;
 	private TabHost tabs;
 	
+=======
+
+>>>>>>> refs/heads/t2_contact
 	/**
 	 * @param name
 	 */
@@ -43,15 +54,17 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		setName(name);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.test.ActivityInstrumentationTestCase2#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
 		mActivity = getActivity();
 		assertNotNull(mActivity);
-		
+
 		mBio = (TextView) mActivity.findViewById(R.id.bio);
 		assertNotNull(mBio);
 		mDateOfBirth = (TextView) mActivity.findViewById(R.id.dateOfBirth);
@@ -62,27 +75,33 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		assertNotNull(mListView);
 		mImageView = (ImageView) mActivity.findViewById(R.id.imageView);
 		assertNotNull(mImageView);
+<<<<<<< HEAD
 		editData = (Button) mActivity.findViewById(R.id.editDataButton);
 		assertNotNull(editData);
 		logout = (Button) mActivity.findViewById(R.id.logoutButton);
 		assertNotNull(logout);
 		tabs = (TabHost)mActivity.findViewById(R.id.tabhost); 
 		assertNotNull(tabs);
+=======
+>>>>>>> refs/heads/t2_contact
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.test.ActivityInstrumentationTestCase2#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
 
+	/**
+	 * Testing views on screen
+	 */
 	@SmallTest
-	public void testFieldsOnScreen()
-	{
-		final View origin =
-				mActivity.getWindow().getDecorView();
-		
+	public void testFieldsOnScreen() {
+		final View origin = mActivity.getWindow().getDecorView();
+
 		ViewAsserts.assertOnScreen(origin, mBio);
 		ViewAsserts.assertOnScreen(origin, mDateOfBirth);
 		ViewAsserts.assertOnScreen(origin, mFullName);
@@ -91,6 +110,7 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 		ViewAsserts.assertOnScreen(origin, editData);
 		ViewAsserts.assertOnScreen(origin, logout);
 	}
+<<<<<<< HEAD
 	
 	public void testSaveChanges()
 	{
@@ -150,5 +170,29 @@ public class MainActivityTests extends ActivityInstrumentationTestCase2<MainActi
 				});
 		    }
 		  });
+=======
+
+	/**
+	 * Testing views alignment
+	 */
+	@SmallTest
+	public void testAlignment() {
+		ViewAsserts.assertRightAligned(mFullName, mDateOfBirth);
+		ViewAsserts.assertRightAligned(mDateOfBirth, mListView);
+		ViewAsserts.assertRightAligned(mListView, mBio);
+		ViewAsserts.assertLeftAligned(mImageView, mBio);
+		ViewAsserts.assertLeftAligned(mFullName, mDateOfBirth);
+		ViewAsserts.assertLeftAligned(mDateOfBirth, mListView);
+	}
+
+	/**
+	 * Testing adding data to database
+	 */
+	@SmallTest
+	public void testAddDataToDatabase() {
+		mActivity.deleteDatabase(Global.DATABASE_NAME);
+
+		mActivity = getActivity();
+>>>>>>> refs/heads/t2_contact
 	}
 }

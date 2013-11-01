@@ -1,0 +1,7 @@
+ * Task:
+ * 
+ * Add an ability to edit the user's data in the database. A proper validation
+ * should be also implemented for the entry fields. The date of birth should be
+ * entered with a Calendar (write a custom widget).
+ * 
+ * Add a second tab - 'About' where leave information about yourself.

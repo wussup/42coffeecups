@@ -209,10 +209,16 @@ public class MainActivity extends Activity {
 	/**
 	 * Setting up my contacts list view
 	 * 
-	 * @param list my contacts list
+	 * @param list
+	 *            my contacts list
 	 */
 	private void setUpMyListView(ArrayList<String> list) {
 		final ListView listview = (ListView) findViewById(R.id.listViewMine);
+
+		if (list == null) {
+			list = new ArrayList<String>();
+			list.add("Error");
+		}
 
 		final StableArrayAdapter adapter = new StableArrayAdapter(this,
 				android.R.layout.simple_list_item_1, list);

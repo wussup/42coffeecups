@@ -52,6 +52,18 @@ public class Data {
 		this.mContacts = contacts;
 	}
 
+	public Data(int id, String name, String surname, String bio, String dateOfBirth,
+			String userId, ArrayList<String> contacts) {
+		super();
+		this.mId = id;
+		this.mName = name;
+		this.mSurname = surname;
+		this.mBio = bio;
+		this.mDateOfBirth = dateOfBirth;
+		this.mUserId = userId;
+		this.mContacts = contacts;
+	}
+	
 	public int getId() {
 		return mId;
 	}

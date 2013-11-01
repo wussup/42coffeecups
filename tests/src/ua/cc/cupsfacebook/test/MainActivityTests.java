@@ -1,15 +1,9 @@
 package ua.cc.cupsfacebook.test;
 
-<<<<<<< HEAD
 import ua.cc.cupsfacebook.EditDataActivity;
-=======
->>>>>>> refs/heads/t2_contact
 import ua.cc.cupsfacebook.MainActivity;
 import ua.cc.cupsfacebook.R;
-<<<<<<< HEAD
-=======
 import ua.cc.cupsfacebook.util.Global;
->>>>>>> refs/heads/t2_contact
 import android.annotation.SuppressLint;
 import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
@@ -25,7 +19,7 @@ import android.widget.TextView;
 /**
  * Tests for class MainActivity
  * 
- * @version 1.1 28-10-2013
+ * @version 1.2 28-10-2013
  * @author Taras Melon
  */
 public class MainActivityTests extends
@@ -35,16 +29,13 @@ public class MainActivityTests extends
 	private TextView mBio;
 	private TextView mDateOfBirth;
 	private TextView mFullName;
-	private ListView mListView;
+	private ListView mListViewMine;
 	private ImageView mImageView;
-<<<<<<< HEAD
-	private Button editData;
-	private Button logout;
-	private TabHost tabs;
-	
-=======
+	private Button mEditData;
+	private Button mLogout;
+	private TabHost mTabs;
+	private ListView mListView;
 
->>>>>>> refs/heads/t2_contact
 	/**
 	 * @param name
 	 */
@@ -71,19 +62,18 @@ public class MainActivityTests extends
 		assertNotNull(mDateOfBirth);
 		mFullName = (TextView) mActivity.findViewById(R.id.fullName);
 		assertNotNull(mFullName);
-		mListView = (ListView) mActivity.findViewById(R.id.listView);
-		assertNotNull(mListView);
+		mListViewMine = (ListView) mActivity.findViewById(R.id.listViewMine);
+		assertNotNull(mListViewMine);
 		mImageView = (ImageView) mActivity.findViewById(R.id.imageView);
 		assertNotNull(mImageView);
-<<<<<<< HEAD
-		editData = (Button) mActivity.findViewById(R.id.editDataButton);
-		assertNotNull(editData);
-		logout = (Button) mActivity.findViewById(R.id.logoutButton);
-		assertNotNull(logout);
-		tabs = (TabHost)mActivity.findViewById(R.id.tabhost); 
-		assertNotNull(tabs);
-=======
->>>>>>> refs/heads/t2_contact
+		mEditData = (Button) mActivity.findViewById(R.id.editDataButton);
+		assertNotNull(mEditData);
+		mLogout = (Button) mActivity.findViewById(R.id.logoutButton);
+		assertNotNull(mLogout);
+		mTabs = (TabHost) mActivity.findViewById(R.id.tabhost);
+		assertNotNull(mTabs);
+		mListView = (ListView) mActivity.findViewById(R.id.listView);
+		assertNotNull(mListView);
 	}
 
 	/*
@@ -105,84 +95,8 @@ public class MainActivityTests extends
 		ViewAsserts.assertOnScreen(origin, mBio);
 		ViewAsserts.assertOnScreen(origin, mDateOfBirth);
 		ViewAsserts.assertOnScreen(origin, mFullName);
-		ViewAsserts.assertOnScreen(origin, mListView);
+		ViewAsserts.assertOnScreen(origin, mListViewMine);
 		ViewAsserts.assertOnScreen(origin, mImageView);
-		ViewAsserts.assertOnScreen(origin, editData);
-		ViewAsserts.assertOnScreen(origin, logout);
-	}
-<<<<<<< HEAD
-	
-	public void testSaveChanges()
-	{
-		mActivity.runOnUiThread(new Runnable() {
-		    public void run() {
-		    	
-		    	try {
-			      Thread.sleep(2000);
-			    } catch (InterruptedException e) {
-			      e.printStackTrace();
-			    }
-		  
-		    	// register next activity that need to be monitored.
-				ActivityMonitor activityMonitor = getInstrumentation().addMonitor(EditDataActivity.class.getName(), null, false);
-		    	
-				//tests for info tab
-				tabs.setCurrentTab(0);
-				
-				editData.performClick();
-				
-				try {
-				      Thread.sleep(2000);
-				    } catch (InterruptedException e) {
-				      e.printStackTrace();
-				    }
-				
-				getInstrumentation().waitForIdleSync();
-				final EditDataActivity nextActivity = (EditDataActivity) getInstrumentation().waitForMonitorWithTimeout(activityMonitor, 10);
-				// next activity is opened and captured.
-				assertNotNull(nextActivity);
-				
-				((TextView)nextActivity.findViewById(R.id.editTextName)).setText("Helloman");
-				final Button saveChanges = (Button)nextActivity.findViewById(R.id.buttonSaveChanges);
-				nextActivity.runOnUiThread(new Runnable() {
-					
-					@Override
-					public void run() {
-						// register next activity that need to be monitored.
-						ActivityMonitor activityMonitor2 = getInstrumentation().addMonitor(MainActivity.class.getName(), null, false);
-						
-						saveChanges.performClick();
-						nextActivity.onBackPressed();
-						
-						try {
-						      Thread.sleep(2000);
-						    } catch (InterruptedException e) {
-						      e.printStackTrace();
-						    }
-						
-						getInstrumentation().waitForIdleSync();
-						final MainActivity nextActivity2 = (MainActivity) getInstrumentation().waitForMonitorWithTimeout(activityMonitor2, 10);
-						// next activity is opened and captured.
-						assertNotNull(nextActivity2);
-						
-						assertEquals("Helloman", ((TextView)nextActivity2.findViewById(R.id.fullName)).getText().toString().split(" ")[0]);
-					}
-				});
-		    }
-		  });
-=======
-
-	/**
-	 * Testing views alignment
-	 */
-	@SmallTest
-	public void testAlignment() {
-		ViewAsserts.assertRightAligned(mFullName, mDateOfBirth);
-		ViewAsserts.assertRightAligned(mDateOfBirth, mListView);
-		ViewAsserts.assertRightAligned(mListView, mBio);
-		ViewAsserts.assertLeftAligned(mImageView, mBio);
-		ViewAsserts.assertLeftAligned(mFullName, mDateOfBirth);
-		ViewAsserts.assertLeftAligned(mDateOfBirth, mListView);
 	}
 
 	/**
@@ -193,6 +107,91 @@ public class MainActivityTests extends
 		mActivity.deleteDatabase(Global.DATABASE_NAME);
 
 		mActivity = getActivity();
->>>>>>> refs/heads/t2_contact
+	}
+
+	/**
+	 * Testing editing and saving user data in database
+	 */
+	@SmallTest
+	public void testSaveChanges() {
+		mActivity.runOnUiThread(new Runnable() {
+			public void run() {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				ActivityMonitor activityMonitor = getInstrumentation()
+						.addMonitor(EditDataActivity.class.getName(), null,
+								false);
+
+				//mTabs.setCurrentTab(0);
+
+				mEditData.performClick();
+
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				getInstrumentation().waitForIdleSync();
+				final EditDataActivity nextActivity = (EditDataActivity) getInstrumentation()
+						.waitForMonitorWithTimeout(activityMonitor, 10);
+
+				assertNotNull(nextActivity);
+
+				((TextView) nextActivity.findViewById(R.id.editTextName))
+						.setText("Helloman");
+				final Button saveChanges = (Button) nextActivity
+						.findViewById(R.id.buttonSaveChanges);
+				nextActivity.runOnUiThread(new SaveChangesAndBackPressedThread(
+						saveChanges, nextActivity));
+			}
+		});
+	}
+
+	/**
+	 * Thread perform click "Save Changes" and perform back click
+	 * 
+	 * @version 1.0 01-11-2013
+	 * @author Taras Melon
+	 */
+	class SaveChangesAndBackPressedThread implements Runnable {
+
+		private Button mSaveChanges;
+		private EditDataActivity mNextActivity;
+
+		public SaveChangesAndBackPressedThread(Button mSaveChanges,
+				EditDataActivity mNextActivity) {
+			this.mSaveChanges = mSaveChanges;
+			this.mNextActivity = mNextActivity;
+		}
+
+		@Override
+		public void run() {
+			ActivityMonitor activityMonitor2 = getInstrumentation().addMonitor(
+					MainActivity.class.getName(), null, false);
+
+			mSaveChanges.performClick();
+			mNextActivity.onBackPressed();
+
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			getInstrumentation().waitForIdleSync();
+			final MainActivity nextActivity2 = (MainActivity) getInstrumentation()
+					.waitForMonitorWithTimeout(activityMonitor2, 10);
+			assertNotNull(nextActivity2);
+
+			assertEquals("Helloman",
+					((TextView) nextActivity2.findViewById(R.id.fullName))
+							.getText().toString().split(" ")[0]);
+		}
+
 	}
 }

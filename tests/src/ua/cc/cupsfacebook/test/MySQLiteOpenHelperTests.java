@@ -2,25 +2,20 @@ package ua.cc.cupsfacebook.test;
 
 import java.util.ArrayList;
 
-import java.util.ArrayList;
-
 import ua.cc.cupsfacebook.database.Data;
 import ua.cc.cupsfacebook.database.MySQLiteOpenHelper;
+import ua.cc.cupsfacebook.util.Global;
 import android.test.AndroidTestCase;
 
 /**
  * Tests for class MySQLiteOpenHelper
  * 
- * @version 1.1 28-10-2013
+ * @version 1.2 28-10-2013
  * @author Taras Melon
  */
 public class MySQLiteOpenHelperTests extends AndroidTestCase {
 
 	private MySQLiteOpenHelper db;
-<<<<<<< HEAD
-	//private static final String TABLE_PRODUCTS = "user_info";
-=======
->>>>>>> refs/heads/t2_contact
 
 	/*
 	 * (non-Javadoc)
@@ -30,7 +25,8 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		db = new MySQLiteOpenHelper(getContext(), null, null, 1);
+		db = new MySQLiteOpenHelper(getContext(), null, null,
+				Global.DATABASE_VERSION);
 		assertNotNull(db);
 	}
 
@@ -59,49 +55,25 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 	 * .
 	 */
 	public void testAddDataAndFindData() {
-<<<<<<< HEAD
 		ArrayList<String> list = new ArrayList<String>();
-		for (int i=1; i<10; i++)
-			list.add("Contact"+i);
-		
-        Data data = new Data("Taras", "Melon", "Was born in...", "05-02-1992", "1", list, "");
-        
-        db.addData(data);
-        
-        ArrayList<Data> dataList = db.findData();
-        Data fetchedData = dataList.get(0);
-        assertEquals(data.getBio(), fetchedData.getBio());
-        assertEquals(data.getDateOfBirth(), fetchedData.getDateOfBirth());
-        assertEquals(data.getName(), fetchedData.getName());
-        assertEquals(data.getSurname(), fetchedData.getSurname());
-        assertEquals(data.getUserId(), fetchedData.getUserId());
-        int i=0;
-        for (String el : fetchedData.getContacts())
-        {
-        	assertEquals(list.get(i), el);
-        	i++;
-        }
-        assertEquals(data.getAbout(), fetchedData.getAbout());
-=======
-		final ArrayList<String> list = new ArrayList<String>();
-		for (int i = 1; i <= 10; ++i) {
+		for (int i = 1; i <= 10; i++)
 			list.add("Contact" + i);
-		}
 
 		Data data = new Data("Taras", "Melon", "Was born in...", "02/05/1992",
 				"1", list);
 
 		db.addData(data);
 
-		Data fetchedData = db.findData();
+		ArrayList<Data> dataList = db.findData();
+		Data fetchedData = dataList.get(0);
 		assertEquals(data.getBio(), fetchedData.getBio());
 		assertEquals(data.getDateOfBirth(), fetchedData.getDateOfBirth());
 		assertEquals(data.getName(), fetchedData.getName());
 		assertEquals(data.getSurname(), fetchedData.getSurname());
 		assertEquals(data.getUserId(), fetchedData.getUserId());
 		int i = 0;
-		for (String actual : fetchedData.getContacts()) {
-			assertEquals(list.get(i), actual);
+		for (String el : fetchedData.getContacts()) {
+			assertEquals(list.get(i), el);
 			i++;
 		}
 	}
@@ -116,7 +88,7 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 		db.getWritableDatabase().execSQL(
 				"DROP TABLE IF EXISTS " + MySQLiteOpenHelper.TABLE_CONTACTS);
 
-		Data fetchedData = db.findData();
+		ArrayList<Data> fetchedData = db.findData();
 
 		String createUsersTable = "CREATE TABLE "
 				+ MySQLiteOpenHelper.TABLE_USERS + "("
@@ -136,15 +108,14 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 		db.getWritableDatabase().execSQL(createUsersTable);
 		db.getWritableDatabase().execSQL(createContactsTable);
 
-		assertNull(fetchedData);
+		assertEquals(0, fetchedData.size());
 	}
 
 	/**
 	 * Testing onUpgrade method
 	 */
 	public void testOnUpgrade() {
-		db.onUpgrade(db.getWritableDatabase(), 1, 2);
-		assertEquals(2, db.getWritableDatabase().getVersion());
->>>>>>> refs/heads/t2_contact
+		db.onUpgrade(db.getWritableDatabase(), 3, 4);
+		assertEquals(4, db.getWritableDatabase().getVersion());
 	}
 }

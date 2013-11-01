@@ -33,13 +33,8 @@ public class LoginActivityTests extends
 
 		mActivity = getActivity();
 		assertNotNull(mActivity);
-<<<<<<< HEAD
-		
-		mButton = (Button)mActivity.findViewById(R.id.logoutButton);
-=======
 
 		mButton = (Button) mActivity.findViewById(R.id.loginButton);
->>>>>>> refs/heads/t2_contact
 		assertNotNull(mButton);
 	}
 

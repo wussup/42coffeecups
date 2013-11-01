@@ -1,0 +1,21 @@
+ * Task:
+ * 
+ * Add a new tab called 'Friends'. The first tab 'Main' should contain the
+ * original user's information. The second tab 'Friends' should show a list of
+ * friends on Facebook with an avatar, first and last name. The third tab is
+ * 'About'.
+ * 
+ * By clicking on a list item the Facebook app or a web application should be
+ * opened with the selected friend.
+ * 
+ * The list of friends should be scrolled very smoothly without any delays no
+ * matter how much data it contains.
+ * 
+ * As always - all time consuming actions should not hang out the application
+ * and the UI should always be responsible as much as possible. If there's no
+ * connection or connection is silly - the user should know, the application
+ * shall not fail silently.
+ * 
+ * Add a splash screen while loading the friends list.
+ * 
+ * Don't forget about proper logging.

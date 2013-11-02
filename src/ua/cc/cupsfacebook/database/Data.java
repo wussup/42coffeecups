@@ -2,149 +2,122 @@ package ua.cc.cupsfacebook.database;
 
 import java.util.ArrayList;
 
+/**
+ * Simple POJO class represents information about user (name, surname,
+ * biography, date of birth, Facebook User ID and contacts)
+ * 
+ * @version 1.2 28-10-2013
+ * @author Taras Melon
+ */
 public class Data {
-	private int id;
-	private String name;
-	private String surname;
-	private String bio;
-	private String dateOfBirth;
-	private String userId;
-	private ArrayList<String> contacts;
-	private String about;
-	
+
+	private int mId;
+	private String mName;
+	private String mSurname;
+	private String mBio;
+	private String mDateOfBirth;
+	private String mUserId;
+	private ArrayList<String> mContacts;
+
 	public Data() {
 	}
 
 	public Data(int id, String name, String surname, String bio,
-			String dateOfBirth, String userId) {
-		this.id = id;
-		this.name = name;
-		this.surname = surname;
-		this.bio = bio;
-		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
+			String dateOfBirth, ArrayList<String> contacts) {
+		this.mId = id;
+		this.mName = name;
+		this.mSurname = surname;
+		this.mBio = bio;
+		this.mDateOfBirth = dateOfBirth;
+		this.mContacts = contacts;
 	}
 
-	public Data(String name, String surname, String bio, String dateOfBirth, String userId) {
-		this.name = name;
-		this.surname = surname;
-		this.bio = bio;
-		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
+	public Data(String name, String surname, String bio, String dateOfBirth,
+			String userId) {
+		this.mName = name;
+		this.mSurname = surname;
+		this.mBio = bio;
+		this.mDateOfBirth = dateOfBirth;
+		this.mUserId = userId;
 	}
 
 	public Data(String name, String surname, String bio, String dateOfBirth,
 			String userId, ArrayList<String> contacts) {
-		this.name = name;
-		this.surname = surname;
-		this.bio = bio;
-		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
-		this.contacts = contacts;
+		super();
+		this.mName = name;
+		this.mSurname = surname;
+		this.mBio = bio;
+		this.mDateOfBirth = dateOfBirth;
+		this.mUserId = userId;
+		this.mContacts = contacts;
 	}
 
 	public Data(int id, String name, String surname, String bio,
 			String dateOfBirth, String userId, ArrayList<String> contacts) {
-		this.id = id;
-		this.name = name;
-		this.surname = surname;
-		this.bio = bio;
-		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
-		this.contacts = contacts;
-	}
-	
-	public Data(int id, String name, String surname, String bio,
-			String dateOfBirth, String userId, ArrayList<String> contacts,
-			String about) {
-		this.id = id;
-		this.name = name;
-		this.surname = surname;
-		this.bio = bio;
-		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
-		this.contacts = contacts;
-		this.about = about;
-	}
-	
-	public Data(String name, String surname, String bio, String dateOfBirth,
-			String userId, ArrayList<String> contacts, String about) {
 		super();
-		this.name = name;
-		this.surname = surname;
-		this.bio = bio;
-		this.dateOfBirth = dateOfBirth;
-		this.userId = userId;
-		this.contacts = contacts;
-		this.about = about;
+		this.mId = id;
+		this.mName = name;
+		this.mSurname = surname;
+		this.mBio = bio;
+		this.mDateOfBirth = dateOfBirth;
+		this.mUserId = userId;
+		this.mContacts = contacts;
 	}
 
 	public int getId() {
-		return id;
+		return mId;
 	}
 
 	public void setId(int id) {
-		this.id = id;
+		this.mId = id;
 	}
 
 	public String getName() {
-		return name;
+		return mName;
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.mName = name;
 	}
 
 	public String getSurname() {
-		return surname;
+		return mSurname;
 	}
 
 	public void setSurname(String surname) {
-		this.surname = surname;
+		this.mSurname = surname;
 	}
 
 	public String getBio() {
-		return bio;
+		return mBio;
 	}
 
 	public void setBio(String bio) {
-		this.bio = bio;
+		this.mBio = bio;
 	}
 
 	public String getDateOfBirth() {
-		return dateOfBirth;
+		return mDateOfBirth;
 	}
 
 	public void setDateOfBirth(String dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-	
-	public String toString()
-	{
-		return id+";"+bio+";"+dateOfBirth+";"+name+";"+surname+";"+userId;
+		this.mDateOfBirth = dateOfBirth;
 	}
 
 	public ArrayList<String> getContacts() {
-		return contacts;
+		return mContacts;
 	}
 
 	public void setContacts(ArrayList<String> contacts) {
-		this.contacts = contacts;
+		this.mContacts = contacts;
 	}
 
-	public String getAbout() {
-		return about;
+	public String getUserId() {
+		return mUserId;
 	}
 
-	public void setAbout(String about) {
-		this.about = about;
+	public void setUserId(String userId) {
+		this.mUserId = userId;
 	}
+
 }

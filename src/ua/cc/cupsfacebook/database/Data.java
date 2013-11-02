@@ -52,8 +52,8 @@ public class Data {
 		this.mContacts = contacts;
 	}
 
-	public Data(int id, String name, String surname, String bio, String dateOfBirth,
-			String userId, ArrayList<String> contacts) {
+	public Data(int id, String name, String surname, String bio,
+			String dateOfBirth, String userId, ArrayList<String> contacts) {
 		super();
 		this.mId = id;
 		this.mName = name;
@@ -63,7 +63,7 @@ public class Data {
 		this.mUserId = userId;
 		this.mContacts = contacts;
 	}
-	
+
 	public int getId() {
 		return mId;
 	}

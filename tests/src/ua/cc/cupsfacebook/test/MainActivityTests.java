@@ -9,6 +9,7 @@ import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.ViewAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -19,7 +20,7 @@ import android.widget.TextView;
 /**
  * Tests for class MainActivity
  * 
- * @version 1.3 28-10-2013
+ * @version 1.2 28-10-2013
  * @author Taras Melon
  */
 public class MainActivityTests extends
@@ -119,21 +120,19 @@ public class MainActivityTests extends
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					Log.e(Global.TAG, e.getMessage());
 				}
 
 				ActivityMonitor activityMonitor = getInstrumentation()
 						.addMonitor(EditDataActivity.class.getName(), null,
 								false);
 
-				// mTabs.setCurrentTab(0);
-
 				mEditData.performClick();
 
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					Log.e(Global.TAG, e.getMessage());
 				}
 
 				getInstrumentation().waitForIdleSync();
@@ -150,6 +149,14 @@ public class MainActivityTests extends
 						saveChanges, nextActivity));
 			}
 		});
+	}
+
+	@SmallTest
+	public void testClickingOnListItem() {
+		int mActivePosition = 1;
+
+		assertTrue(mListView.getAdapter().getView(mActivePosition, null, null)
+				.performClick());
 	}
 
 	/**
@@ -180,7 +187,7 @@ public class MainActivityTests extends
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Log.e(Global.TAG, e.getMessage());
 			}
 
 			getInstrumentation().waitForIdleSync();
@@ -193,12 +200,5 @@ public class MainActivityTests extends
 							.getText().toString().split(" ")[0]);
 		}
 
-	}
-
-	public void testClickingOnListItem() {
-		int mActivePosition = 1;
-
-		assertTrue(listView.getAdapter().getView(mActivePosition, null, null)
-				.performClick());
 	}
 }

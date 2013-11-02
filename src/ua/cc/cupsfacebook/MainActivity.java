@@ -49,7 +49,7 @@ import com.facebook.Session;
  * 
  * Description of functionality you can find in file README
  * 
- * @version 1.2 27-10-2013
+ * @version 1.3 27-10-2013
  * @author Taras Melon
  * 
  */
@@ -82,81 +82,7 @@ public class MainActivity extends Activity {
 
 		setUpTabWidget();
 
-		final ListView listView = (ListView) findViewById(R.id.listView);
-		listView.setOnScrollListener(new OnScrollListener() {
-
-			@Override
-			public void onScrollStateChanged(final AbsListView view,
-					int scrollState) {
-				if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-					int first = listView.getFirstVisiblePosition();
-					int last = listView.getLastVisiblePosition();
-					for (int i = first; i <= last; i++) {
-						final int num = i;
-
-						if (mItemsAdapter.items[num].getDrawable() == null) {
-
-							int firstPosition = listView
-									.getFirstVisiblePosition()
-									- listView.getHeaderViewsCount(); // This is
-																		// the
-																		// same
-																		// as
-																		// child
-																		// #0
-							int wantedChild = i - firstPosition;
-							final TextView textView = (TextView) ((LinearLayout) listView
-									.getChildAt(wantedChild))
-									.findViewById(R.id.desc);
-
-							final AsyncTask<String, Void, Bitmap> task = new AsyncTask<String, Void, Bitmap>() {
-
-								@Override
-								protected Bitmap doInBackground(String... urls) {
-									try {
-										URL img_value = null;
-
-										img_value = new URL(
-												"http://graph.facebook.com/"
-														+ urls[0]
-														+ "/picture?type=square");
-
-										Bitmap mIcon1 = BitmapFactory
-												.decodeStream(img_value
-														.openConnection()
-														.getInputStream());
-										return mIcon1;
-									} catch (MalformedURLException e) {
-										e.printStackTrace();
-									} catch (IOException e) {
-										e.printStackTrace();
-									}
-									return null;
-								}
-
-								protected void onPostExecute(Bitmap result) {
-									if (result != null) {
-										Drawable drawable = new BitmapDrawable(
-												getResources(), result);
-										textView.setCompoundDrawablesWithIntrinsicBounds(
-												drawable, null, null, null);
-										mItemsAdapter.items[num]
-												.setDrawable(drawable);
-									}
-								}
-							};
-							task.execute(textView.getContentDescription()
-									.toString());
-						}
-					}
-				}
-			}
-
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount) {
-			}
-		});
+		setUpListViewListener();
 
 		findViewById(R.id.logoutButton).setOnClickListener(
 				new View.OnClickListener() {
@@ -174,6 +100,54 @@ public class MainActivity extends Activity {
 				currentTabActions();
 			}
 		});
+	}
+
+	/**
+	 * Setting up list view on scroll listener
+	 */
+	private void setUpListViewListener() {
+		final ListView listView = (ListView) findViewById(R.id.listView);
+		listView.setOnScrollListener(new OnScrollListener() {
+
+			@Override
+			public void onScrollStateChanged(final AbsListView view,
+					int scrollState) {
+				if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+					onScrollStateIdle(listView);
+				}
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+			}
+		});
+	}
+
+	/**
+	 * Method download avatars for each visible in list view friend
+	 * 
+	 * @param listView
+	 *            list view with user contacts
+	 */
+	private void onScrollStateIdle(final ListView listView) {
+		int first = listView.getFirstVisiblePosition();
+		int last = listView.getLastVisiblePosition();
+		for (int i = first; i <= last; i++) {
+			final int num = i;
+
+			if (mItemsAdapter.items[num].getDrawable() == null) {
+
+				int firstPosition = listView.getFirstVisiblePosition()
+						- listView.getHeaderViewsCount();
+				int wantedChild = i - firstPosition;
+				final TextView textView = (TextView) ((LinearLayout) listView
+						.getChildAt(wantedChild)).findViewById(R.id.desc);
+
+				MyAsyncTask task = new MyAsyncTask(textView, num);
+				task.execute(textView.getContentDescription().toString());
+			}
+		}
 	}
 
 	/**
@@ -224,6 +198,13 @@ public class MainActivity extends Activity {
 
 		ArrayList<Friend> friendList = new ArrayList<Friend>();
 
+		if (contacts == null) {
+			contacts = new ArrayList<String>();
+			contacts.add("Error;1");
+			Log.e(Global.TAG,
+					"NullPointerException: value 'contacts' in method setUpListView is null");
+		}
+
 		for (String listString : contacts) {
 			String[] splitted = listString.split(";");
 			friendList.add(new Friend(splitted[0], splitted[1]));
@@ -273,44 +254,13 @@ public class MainActivity extends Activity {
 		if (list == null) {
 			list = new ArrayList<String>();
 			list.add("Error");
+			Log.e(Global.TAG,
+					"NullPointerException: value 'list' in method setUpListView is null");
 		}
 
 		final StableArrayAdapter adapter = new StableArrayAdapter(this,
 				android.R.layout.simple_list_item_1, list);
 		listview.setAdapter(adapter);
-	}
-
-	/**
-	 * AsyncTask for download user's avatar
-	 * 
-	 * @version 1.0 01-11-2013
-	 * @author Taras Melon
-	 */
-	class RetreiveFeedTask extends AsyncTask<String, Void, Bitmap> {
-
-		protected Bitmap doInBackground(String... urls) {
-			try {
-				URL img_value = null;
-
-				img_value = new URL("http://graph.facebook.com/" + urls[0]
-						+ "/picture?type=large");
-
-				Bitmap mIcon1 = BitmapFactory.decodeStream(img_value
-						.openConnection().getInputStream());
-				return mIcon1;
-			} catch (MalformedURLException e) {
-				Log.e(Global.TAG, e.getMessage());
-			} catch (IOException e) {
-				Log.e(Global.TAG, e.getMessage());
-			}
-			return null;
-		}
-
-		protected void onPostExecute(Bitmap result) {
-			if (result != null)
-				mUserPicture.setImageBitmap(result);
-		}
-
 	}
 
 	@Override
@@ -319,115 +269,42 @@ public class MainActivity extends Activity {
 	}
 
 	/**
-	 * The Class ItemsAdapter.
+	 * Setting up list view item on click listener. Listener load contact's
+	 * Facebook page
+	 * 
+	 * @param convertView
+	 *            list view item
+	 * @param friend
+	 *            contact info
 	 */
-	private class ItemsAdapter extends BaseAdapter {
+	private void setUpListViewItemOnClickListener(View convertView,
+			final Friend friend) {
+		convertView.setOnClickListener(new OnClickListener() {
 
-		/** The items. */
-		Friend[] items;
-
-		/**
-		 * Instantiates a new items adapter.
-		 * 
-		 * @param context
-		 *            the context
-		 * @param textViewResourceId
-		 *            the text view resource id
-		 * @param items
-		 *            the items
-		 */
-		public ItemsAdapter(Context context, int textViewResourceId,
-				Friend[] items) {
-			this.items = items;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.Adapter#getView(int, android.view.View,
-		 * android.view.ViewGroup)
-		 */
-		@Override
-		public View getView(final int position, View convertView,
-				ViewGroup parent) {
-			final TextView mDescription;
-			View view = convertView;
-			if (view == null) {
-				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				view = vi.inflate(R.layout.list_item, null);
+			@Override
+			public void onClick(View v) {
+				startFriendsPage(friend.getId());
 			}
 
-			mDescription = (TextView) view.findViewById(R.id.desc);
+			private void startFriendsPage(String friendId) {
+				final String urlFb = "fb://profile/" + friendId;
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(urlFb));
 
-			final Friend friend = items[position];
+				// If Facebook application is installed, use that else
+				// launch a browser
+				final PackageManager packageManager = getPackageManager();
+				List<ResolveInfo> list = packageManager.queryIntentActivities(
+						intent, PackageManager.MATCH_DEFAULT_ONLY);
+				if (list.size() == 0) {
+					final String urlBrowser = "https://www.facebook.com/pages/"
+							+ friendId;
+					intent.setData(Uri.parse(urlBrowser));
+				}
 
-			mDescription.setText(friend.getName());
-
-			mDescription.setContentDescription(friend.getId());
-
-			if (friend.getDrawable() != null) {
-				mDescription.setCompoundDrawables(friend.getDrawable(), null,
-						null, null);
+				startActivity(intent);
 			}
-
-			view.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					startFriendsPage(friend.getId());
-				}
-
-				private void startFriendsPage(String friendId) {
-					final String urlFb = "fb://page/" + friendId;
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-					intent.setData(Uri.parse(urlFb));
-
-					// If Facebook application is installed, use that else
-					// launch a browser
-					final PackageManager packageManager = getPackageManager();
-					List<ResolveInfo> list = packageManager
-							.queryIntentActivities(intent,
-									PackageManager.MATCH_DEFAULT_ONLY);
-					if (list.size() == 0) {
-						final String urlBrowser = "https://www.facebook.com/pages/"
-								+ friendId;
-						intent.setData(Uri.parse(urlBrowser));
-					}
-
-					startActivity(intent);
-				}
-			});
-
-			return view;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.Adapter#getCount()
-		 */
-		public int getCount() {
-			return items.length;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.Adapter#getItem(int)
-		 */
-		public Object getItem(int position) {
-			return items[position];
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.Adapter#getItemId(int)
-		 */
-		public long getItemId(int position) {
-			return Long.valueOf(items[position].getId());
-		}
-
+		});
 	}
 
 	/**
@@ -546,5 +423,186 @@ public class MainActivity extends Activity {
 			String item = getItem(position);
 			return mListOfContacts.get(item);
 		}
+	}
+
+	/**
+	 * ViewHolder pattern class
+	 * 
+	 * @version 1.0 02-11-2013
+	 * @author Taras Melon
+	 */
+	private static class ViewHolder {
+		TextView textView;
+	}
+
+	/**
+	 * AsyncTask for download contact's avatar
+	 * 
+	 * @version 1.0 02-11-2013
+	 * @author Taras Melon
+	 */
+	private class MyAsyncTask extends AsyncTask<String, Void, Bitmap> {
+
+		private TextView textView;
+		private int num;
+
+		public MyAsyncTask(TextView textView, int num) {
+			this.textView = textView;
+			this.num = num;
+		}
+
+		@Override
+		protected Bitmap doInBackground(String... urls) {
+			try {
+				URL img_value = null;
+
+				img_value = new URL("http://graph.facebook.com/" + urls[0]
+						+ "/picture?type=square");
+
+				Bitmap mIcon1 = BitmapFactory.decodeStream(img_value
+						.openConnection().getInputStream());
+				return mIcon1;
+			} catch (MalformedURLException e) {
+				Log.e(Global.TAG, e.getMessage());
+			} catch (IOException e) {
+				Log.e(Global.TAG, e.getMessage());
+			}
+			return null;
+		}
+
+		protected void onPostExecute(Bitmap result) {
+			if (result != null) {
+				Drawable drawable = new BitmapDrawable(getResources(), result);
+				textView.setCompoundDrawablesWithIntrinsicBounds(drawable,
+						null, null, null);
+				mItemsAdapter.items[num].setDrawable(drawable);
+			}
+		}
+	}
+
+	/**
+	 * AsyncTask for download user's avatar
+	 * 
+	 * @version 1.0 01-11-2013
+	 * @author Taras Melon
+	 */
+	class RetreiveFeedTask extends AsyncTask<String, Void, Bitmap> {
+
+		protected Bitmap doInBackground(String... urls) {
+			try {
+				URL img_value = null;
+
+				img_value = new URL("http://graph.facebook.com/" + urls[0]
+						+ "/picture?type=large");
+
+				Bitmap mIcon1 = BitmapFactory.decodeStream(img_value
+						.openConnection().getInputStream());
+				return mIcon1;
+			} catch (MalformedURLException e) {
+				Log.e(Global.TAG, e.getMessage());
+			} catch (IOException e) {
+				Log.e(Global.TAG, e.getMessage());
+			}
+			return null;
+		}
+
+		protected void onPostExecute(Bitmap result) {
+			if (result != null)
+				mUserPicture.setImageBitmap(result);
+		}
+	}
+
+	/**
+	 * Adapter for list view with user contacts
+	 * 
+	 * @version 1.0 02-11-2013
+	 * @author Taras Melon
+	 */
+	private class ItemsAdapter extends BaseAdapter {
+
+		/** The items. */
+		Friend[] items;
+
+		/**
+		 * Instantiates a new items adapter.
+		 * 
+		 * @param context
+		 *            the context
+		 * @param textViewResourceId
+		 *            the text view resource id
+		 * @param items
+		 *            the items
+		 */
+		public ItemsAdapter(Context context, int textViewResourceId,
+				Friend[] items) {
+			this.items = items;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getView(int, android.view.View,
+		 * android.view.ViewGroup)
+		 */
+		@Override
+		public View getView(final int position, View convertView,
+				ViewGroup parent) {
+			ViewHolder viewHolder;
+
+			if (convertView == null) {
+				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				convertView = vi.inflate(R.layout.list_item, null);
+
+				viewHolder = new ViewHolder();
+				viewHolder.textView = (TextView) convertView
+						.findViewById(R.id.desc);
+
+				convertView.setTag(viewHolder);
+			} else {
+				viewHolder = (ViewHolder) convertView.getTag();
+			}
+
+			final Friend friend = items[position];
+
+			viewHolder.textView.setText(friend.getName());
+			viewHolder.textView.setContentDescription(friend.getId());
+
+			if (friend.getDrawable() != null) {
+				viewHolder.textView.setCompoundDrawables(friend.getDrawable(),
+						null, null, null);
+			}
+
+			setUpListViewItemOnClickListener(convertView, friend);
+
+			return convertView;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getCount()
+		 */
+		public int getCount() {
+			return items.length;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getItem(int)
+		 */
+		public Object getItem(int position) {
+			return items[position];
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.Adapter#getItemId(int)
+		 */
+		public long getItemId(int position) {
+			return Long.valueOf(items[position].getId());
+		}
+
 	}
 }

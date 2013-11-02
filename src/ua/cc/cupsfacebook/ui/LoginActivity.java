@@ -35,7 +35,7 @@ import com.facebook.model.GraphUser;
  * Activity represents functionality for log in Facebook account via Facebook
  * app or web-browser
  * 
- * @version 1.2 28-10-2013
+ * @version 1.3 28-10-2013
  * @author Taras Melon
  */
 public class LoginActivity extends FragmentActivity {
@@ -182,15 +182,13 @@ public class LoginActivity extends FragmentActivity {
 	}
 
 	/**
-	 * Making request for me data from Facebook account, adding fetched data to
-	 * database and starting MainActivity
+	 * Making request for user data and friends list from Facebook account,
+	 * adding fetched data to database and starting MainActivity
 	 * 
 	 * @param session
 	 *            current session info
 	 */
 	private void makeMeRequest(final Session session) {
-		// Make an API call to get user data and define a
-		// new callback to handle the response.
 		Request request = Request.newMeRequest(session,
 				new Request.GraphUserCallback() {
 					@Override
@@ -199,38 +197,10 @@ public class LoginActivity extends FragmentActivity {
 						// If the response is successful
 						if (session == Session.getActiveSession()) {
 							if (user != null) {
-								// Set the id for the ProfilePictureView
-								// view that in turn displays the profile
-								// picture.
-
-								// Set the Textview's text to the user's name.
 								Request friendsRequest = Request
 										.newMyFriendsRequest(session,
-												new GraphUserListCallback() {
-
-													@Override
-													public void onCompleted(
-															List<GraphUser> users,
-															Response response) {
-
-														if (session == Session
-																.getActiveSession()) {
-															addDataToDatabase(
-																	user, users);
-
-															addDataToDatabase();
-
-															if (isNetworkAvailable())
-																startMainActivity();
-														}
-														if (response.getError() != null) {
-															Log.e(Global.TAG,
-																	response.getError()
-																			.getErrorMessage());
-														}
-														mDialog.dismiss();
-													}
-												});
+												new MyGraphUserListCallback(
+														session, user));
 								Bundle params = new Bundle();
 								params.putString("fields", "id, name");
 								friendsRequest.setParameters(params);
@@ -247,6 +217,14 @@ public class LoginActivity extends FragmentActivity {
 		request.executeAsync();
 	}
 
+	/**
+	 * Adding user data to database
+	 * 
+	 * @param user
+	 *            current Facebook user
+	 * @param friends
+	 *            user friends list
+	 */
 	private void addDataToDatabase(GraphUser user, List<GraphUser> friends) {
 		MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this, null, null,
 				Global.DATABASE_VERSION);
@@ -365,5 +343,39 @@ public class LoginActivity extends FragmentActivity {
 				Exception exception) {
 			updateView();
 		}
+	}
+
+	/**
+	 * Callback with user friends list
+	 * 
+	 * @version 1.0 02-11-2013
+	 * @author Taras melon
+	 */
+	private class MyGraphUserListCallback implements GraphUserListCallback {
+
+		private Session session;
+		private GraphUser user;
+
+		public MyGraphUserListCallback(Session session, GraphUser user) {
+			this.session = session;
+			this.user = user;
+		}
+
+		@Override
+		public void onCompleted(List<GraphUser> users, Response response) {
+			if (session == Session.getActiveSession()) {
+				addDataToDatabase(user, users);
+
+				addDataToDatabase();
+
+				if (isNetworkAvailable())
+					startMainActivity();
+			}
+			if (response.getError() != null) {
+				Log.e(Global.TAG, response.getError().getErrorMessage());
+			}
+			mDialog.dismiss();
+		}
+
 	}
 }

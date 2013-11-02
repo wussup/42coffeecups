@@ -10,7 +10,7 @@ import android.test.AndroidTestCase;
 /**
  * Tests for class MySQLiteOpenHelper
  * 
- * @version 1.3 28-10-2013
+ * @version 1.2 28-10-2013
  * @author Taras Melon
  */
 public class MySQLiteOpenHelperTests extends AndroidTestCase {

@@ -103,7 +103,9 @@ public class MySQLiteOpenHelperTests extends AndroidTestCase {
 				+ MySQLiteOpenHelper.CONTACT_COLUMN_ID
 				+ " INTEGER PRIMARY KEY,"
 				+ MySQLiteOpenHelper.CONTACT_COLUMN_USER_ID + " INTEGER,"
-				+ MySQLiteOpenHelper.CONTACT_COLUMN_FULL_NAME + " TEXT" + ")";
+				+ MySQLiteOpenHelper.CONTACT_COLUMN_FULL_NAME + " TEXT,"
+				+ MySQLiteOpenHelper.CONTACT_COLUMN_FACEBOOK_ID + " TEXT,"
+				+ MySQLiteOpenHelper.CONTACT_COLUMN_PRIORITY + " INTEGER" + ")";
 
 		db.getWritableDatabase().execSQL(createUsersTable);
 		db.getWritableDatabase().execSQL(createContactsTable);

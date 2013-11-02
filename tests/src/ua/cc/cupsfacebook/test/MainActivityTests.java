@@ -20,7 +20,7 @@ import android.widget.TextView;
 /**
  * Tests for class MainActivity
  * 
- * @version 1.3 28-10-2013
+ * @version 1.2 28-10-2013
  * @author Taras Melon
  */
 public class MainActivityTests extends
@@ -201,13 +201,19 @@ public class MainActivityTests extends
 		}
 
 	}
-	
+
+	/**
+	 * Testing visibility of checkboxes
+	 */
 	@SmallTest
-	public void testNotVisibleCheckboxes()
-	{
-		int size = listView.getAdapter().getCount();
-		
-		for (int i=0; i<size; i++)
-			assertEquals(View.INVISIBLE, listView.getAdapter().getView(i, null, null).findViewById(R.id.checkBoxPriority).getVisibility());
+	public void testNotVisibleCheckboxes() {
+		int size = mListView.getAdapter().getCount();
+
+		for (int i = 0; i < size; i++)
+			assertEquals(
+					View.INVISIBLE,
+					mListView.getAdapter().getView(i, null, null)
+							.findViewById(R.id.checkBoxPriority)
+							.getVisibility());
 	}
 }

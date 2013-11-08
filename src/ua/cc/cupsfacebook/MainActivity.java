@@ -50,6 +50,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.Session;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 /**
  * MainActivity represents fully functionality of the app.
@@ -71,6 +74,8 @@ public class MainActivity extends Activity {
 	private ImageView mUserPicture;
 	private ItemsAdapter mItemsAdapter;
 	private boolean mCheckboxesAreVisible = false;
+
+	private ImageLoader mImageLoader;
 
 	/*
 	 * (non-Javadoc)
@@ -108,6 +113,19 @@ public class MainActivity extends Activity {
 				currentTabActions();
 			}
 		});
+
+		setUpImageLoader();
+	}
+
+	/**
+	 * Setting up Image Loader for downloading avatars
+	 */
+	private void setUpImageLoader() {
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+				getApplicationContext()).threadPoolSize(20).build();
+
+		ImageLoader.getInstance().init(config);
+		mImageLoader = ImageLoader.getInstance();
 	}
 
 	/**
@@ -138,7 +156,8 @@ public class MainActivity extends Activity {
 	 * @param listView
 	 *            list view with user contacts
 	 */
-	private void onScrollStateIdle(final ListView listView) {
+	private synchronized void onScrollStateIdle(final ListView listView) {
+
 		int first = listView.getFirstVisiblePosition();
 		int last = listView.getLastVisiblePosition();
 		for (int i = first; i <= last; i++) {
@@ -152,10 +171,16 @@ public class MainActivity extends Activity {
 				final TextView textView = (TextView) ((LinearLayout) listView
 						.getChildAt(wantedChild)).findViewById(R.id.desc);
 
-				MyAsyncTask task = new MyAsyncTask(textView, num);
-				task.execute(textView.getContentDescription().toString());
+				final ImageView imageView = (ImageView) ((LinearLayout) listView
+						.getChildAt(wantedChild)).findViewById(R.id.avatar);
+
+				mImageLoader.loadImage("http://graph.facebook.com/"
+						+ textView.getContentDescription().toString()
+						+ "/picture?type=square",
+						new MySimpleImageLoadingListener(num, imageView));
 			}
 		}
+
 	}
 
 	/**
@@ -523,57 +548,13 @@ public class MainActivity extends Activity {
 	/**
 	 * ViewHolder pattern class
 	 * 
-	 * @version 1.1 02-11-2013
+	 * @version 1.2 02-11-2013
 	 * @author Taras Melon
 	 */
 	private static class ViewHolder {
 		TextView textView;
 		CheckBox checkBox;
-	}
-
-	/**
-	 * AsyncTask for download contact's avatar
-	 * 
-	 * @version 1.0 02-11-2013
-	 * @author Taras Melon
-	 */
-	private class MyAsyncTask extends AsyncTask<String, Void, Bitmap> {
-
-		private TextView textView;
-		private int num;
-
-		public MyAsyncTask(TextView textView, int num) {
-			this.textView = textView;
-			this.num = num;
-		}
-
-		@Override
-		protected Bitmap doInBackground(String... urls) {
-			try {
-				URL img_value = null;
-
-				img_value = new URL("http://graph.facebook.com/" + urls[0]
-						+ "/picture?type=square");
-
-				Bitmap mIcon1 = BitmapFactory.decodeStream(img_value
-						.openConnection().getInputStream());
-				return mIcon1;
-			} catch (MalformedURLException e) {
-				Log.e(Global.TAG, e.getMessage());
-			} catch (IOException e) {
-				Log.e(Global.TAG, e.getMessage());
-			}
-			return null;
-		}
-
-		protected void onPostExecute(Bitmap result) {
-			if (result != null) {
-				Drawable drawable = new BitmapDrawable(getResources(), result);
-				textView.setCompoundDrawablesWithIntrinsicBounds(drawable,
-						null, null, null);
-				mItemsAdapter.items[num].setDrawable(drawable);
-			}
-		}
+		ImageView avatar;
 	}
 
 	/**
@@ -611,7 +592,7 @@ public class MainActivity extends Activity {
 	/**
 	 * Adapter for list view with user contacts
 	 * 
-	 * @version 1.1 02-11-2013
+	 * @version 1.2 02-11-2013
 	 * @author Taras Melon
 	 */
 	private class ItemsAdapter extends BaseAdapter {
@@ -643,7 +624,7 @@ public class MainActivity extends Activity {
 		@Override
 		public View getView(final int position, View convertView,
 				ViewGroup parent) {
-			ViewHolder viewHolder;
+			final ViewHolder viewHolder;
 
 			if (convertView == null) {
 				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -655,20 +636,25 @@ public class MainActivity extends Activity {
 				viewHolder.checkBox = (CheckBox) convertView
 						.findViewById(R.id.checkBoxPriority);
 
+				viewHolder.avatar = (ImageView) convertView
+						.findViewById(R.id.avatar);
+
 				convertView.setTag(viewHolder);
 			} else {
 				viewHolder = (ViewHolder) convertView.getTag();
 			}
+			final Friend friend;
 
-			final Friend friend = items[position];
+			friend = items[position];
 
 			viewHolder.textView.setText(friend.getName());
 			viewHolder.textView.setContentDescription(friend.getId());
 
-			if (friend.getDrawable() != null) {
-				viewHolder.textView.setCompoundDrawables(friend.getDrawable(),
-						null, null, null);
-			}
+			if (friend.getDrawable() != null)
+				viewHolder.avatar.setImageDrawable(friend.getDrawable());
+			else
+				viewHolder.avatar.setImageDrawable(MainActivity.this
+						.getResources().getDrawable(R.drawable.ic_launcher));
 
 			setUpListViewItemOnClickListener(convertView, friend);
 
@@ -735,4 +721,30 @@ public class MainActivity extends Activity {
 		}
 
 	};
+
+	/**
+	 * Listener waits for fetched friend's avatar and set it to friend item in
+	 * list
+	 * 
+	 * @version 1.0 08-11-2013
+	 * @author Taras Melon
+	 */
+	private class MySimpleImageLoadingListener extends
+			SimpleImageLoadingListener {
+		private int pos;
+		private ImageView imageView;
+
+		public MySimpleImageLoadingListener(int pos, ImageView imageView) {
+			this.pos = pos;
+			this.imageView = imageView;
+		}
+
+		@Override
+		public void onLoadingComplete(String imageUri, View view,
+				Bitmap loadedImage) {
+			imageView.setImageBitmap(loadedImage);
+			Drawable drawable = new BitmapDrawable(getResources(), loadedImage);
+			mItemsAdapter.items[pos].setDrawable(drawable);
+		}
+	}
 }

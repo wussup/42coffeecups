@@ -12,6 +12,5 @@
     <string name="save_changes">Save changes</string>
     <string name="editData">Edit Data</string>
     <string name="title_activity_edit_data">EditDataActivity</string>
-    <string name="avatar">Avatar</string>
 
 </resources>
